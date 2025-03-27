@@ -3,7 +3,7 @@
 import type { Message } from "ai";
 import { motion } from "framer-motion";
 
-import { SparklesIcon, UserIcon } from "./icons";
+import { SparklesIcon, UserIcon, CheckCircleFillIcon } from "./icons";
 import { Markdown } from "./markdown";
 import { PreviewAttachment } from "./preview-attachment";
 import { cn } from "@/lib/utils";
@@ -18,26 +18,33 @@ export const PreviewMessage = ({
   message: Message;
   isLoading: boolean;
 }) => {
+  const isAssistant = message.role === "assistant";
+  
   return (
     <motion.div
-      className="w-full px-3 py-2 group/message"
+      className="w-full px-3 py-1.5 group/message"
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       data-role={message.role}
     >
       <div
         className={cn(
-          "flex gap-3 px-4 py-3 rounded-lg",
-          message.role === "user" 
-            ? "bg-[#E6F0FA] w-full md:w-[85%] mr-auto flex-row-reverse" 
-            : "bg-[#E6F0FA] w-full md:w-[85%]"
+          "flex gap-3 py-3 px-4 rounded-2xl shadow-sm",
+          isAssistant 
+            ? "bg-[#EEF4FF] w-full md:w-[90%] border-l-4 border-[#4D79FF]" 
+            : "bg-white border border-[#E5E9F0] w-full md:w-[90%] mr-auto flex-row-reverse border-r-4 border-[#7BDCB5]"
         )}
       >
-        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-[#DADDE1] bg-[#3B82F6]">
-          {message.role === "user" ? (
-            <UserIcon size={16} className="text-white" />
+        <div className={cn(
+          "size-9 flex items-center rounded-full justify-center ring-1 shrink-0 ring-[#E5E9F0] shadow-sm",
+          isAssistant 
+            ? "bg-gradient-to-br from-[#4D79FF] to-[#7C9CFF]"
+            : "bg-gradient-to-br from-[#33B37B] to-[#7BDCB5]"
+        )}>
+          {isAssistant ? (
+            <SparklesIcon size={18} className="text-white" />
           ) : (
-            <SparklesIcon size={16} className="text-white" />
+            <UserIcon size={18} className="text-white" />
           )}
         </div>
 
@@ -61,7 +68,7 @@ export const PreviewMessage = ({
                       {toolName === "get_current_weather" ? (
                         <Weather weatherAtLocation={result} />
                       ) : (
-                        <pre dir="ltr">{JSON.stringify(result, null, 2)}</pre>
+                        <pre dir="ltr" className="bg-[#F8FAFC] p-3 rounded-lg text-sm overflow-x-auto">{JSON.stringify(result, null, 2)}</pre>
                       )}
                     </div>
                   );
@@ -101,18 +108,23 @@ export const ThinkingMessage = () => {
     <motion.div
       className="w-full px-3"
       initial={{ y: 5, opacity: 0 }}
-      animate={{ y: 0, opacity: 1, transition: { delay: 0.5 } }}
+      animate={{ y: 0, opacity: 1, transition: { delay: 0.3 } }}
     >
       <div
-        className="flex gap-3 w-full md:w-[85%] bg-[#E6F0FA] rounded-lg px-4 py-3"
+        className="flex gap-3 w-full md:w-[90%] bg-[#EEF4FF] rounded-2xl px-4 py-3 shadow-sm border-l-4 border-[#4D79FF]"
       >
-        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-[#DADDE1] bg-[#3B82F6]">
-          <SparklesIcon size={16} className="text-white" />
+        <div className="size-9 flex items-center rounded-full justify-center ring-1 shrink-0 ring-[#E5E9F0] shadow-sm bg-gradient-to-br from-[#4D79FF] to-[#7C9CFF]">
+          <SparklesIcon size={18} className="text-white" />
         </div>
 
         <div className="flex flex-col gap-2 w-full py-1">
-          <div className="flex flex-col gap-4 text-muted-foreground text-right">
-            جاري التفكير...
+          <div className="flex gap-2 items-center">
+            <div className="flex space-x-2 rtl:space-x-reverse">
+              <span className="animate-bounce h-2 w-2 rounded-full bg-[#4D79FF] delay-0"></span>
+              <span className="animate-bounce h-2 w-2 rounded-full bg-[#4D79FF] delay-150"></span>
+              <span className="animate-bounce h-2 w-2 rounded-full bg-[#4D79FF] delay-300"></span>
+            </div>
+            <span className="text-[#4D79FF] mr-2 text-right font-medium">جاري التفكير...</span>
           </div>
         </div>
       </div>
