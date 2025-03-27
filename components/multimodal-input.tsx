@@ -14,7 +14,7 @@ import { useLocalStorage, useWindowSize } from "usehooks-ts";
 
 import { cn, sanitizeUIMessages } from "@/lib/utils";
 
-import { MessageIcon, PaperclipIcon, SmileIcon, StopIcon } from "./icons";
+import { PaperclipIcon, SmileIcon, StopIcon } from "./icons";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 
@@ -61,7 +61,7 @@ export function MultimodalInput({
   const adjustHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight + 2}px`;
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight + 2, 120)}px`;
     }
   };
 
@@ -101,23 +101,14 @@ export function MultimodalInput({
   }, [handleSubmit, setLocalStorageInput, width]);
 
   return (
-    <div className="flex items-center w-full gap-3 border-t p-3 bg-white">
-      <div className="flex gap-2 text-[#3B82F6]">
-        <button className="hover:bg-blue-50 p-2 rounded-full">
-          <SmileIcon size={24} />
-        </button>
-        <button className="hover:bg-blue-50 p-2 rounded-full">
-          <PaperclipIcon size={24} />
-        </button>
-      </div>
-
+    <div className="flex items-center w-full p-4 border-t border-[#E6E6E6] bg-white">
       <Textarea
         ref={textareaRef}
-        placeholder="اكتب سؤالك هنا..."
+        placeholder="اكتب رسالتك..."
         value={input}
         onChange={handleInput}
         className={cn(
-          "min-h-[40px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-[20px] text-base bg-white border-[#BFDBFE] flex-1 placeholder:text-right dir-rtl",
+          "min-h-[40px] max-h-[120px] overflow-hidden resize-none rounded-xl text-base bg-white border-[#DADDE1] flex-1 placeholder:text-right dir-rtl py-2 px-4",
           className,
         )}
         rows={1}
@@ -134,30 +125,40 @@ export function MultimodalInput({
           }
         }}
       />
-
-      {isLoading ? (
-        <Button
-          className="rounded-full h-10 w-10 p-0 bg-[#3B82F6] text-white shrink-0"
-          onClick={(event) => {
-            event.preventDefault();
-            stop();
-            setMessages((messages) => sanitizeUIMessages(messages));
-          }}
-        >
-          <StopIcon size={14} />
-        </Button>
-      ) : (
-        <Button
-          className="rounded-full h-10 w-10 p-0 bg-[#3B82F6] text-white text-sm shrink-0 flex items-center justify-center"
-          onClick={(event) => {
-            event.preventDefault();
-            submitForm();
-          }}
-          disabled={input.length === 0}
-        >
-          إرسال
-        </Button>
-      )}
+      
+      <div className="flex items-center gap-3 pr-4">
+        <button className="text-[#3B82F6] hover:bg-blue-50 p-2 rounded-full">
+          <SmileIcon size={20} />
+        </button>
+        
+        <button className="text-[#3B82F6] hover:bg-blue-50 p-2 rounded-full">
+          <PaperclipIcon size={20} />
+        </button>
+        
+        {isLoading ? (
+          <Button
+            className="rounded-full h-10 w-10 min-w-[40px] p-0 bg-[#3B82F6] text-white shrink-0"
+            onClick={(event) => {
+              event.preventDefault();
+              stop();
+              setMessages((messages) => sanitizeUIMessages(messages));
+            }}
+          >
+            <StopIcon size={14} />
+          </Button>
+        ) : (
+          <Button
+            className="rounded-full h-10 min-w-[80px] px-4 bg-[#3B82F6] text-white text-sm shrink-0 flex items-center justify-center"
+            onClick={(event) => {
+              event.preventDefault();
+              submitForm();
+            }}
+            disabled={input.length === 0}
+          >
+            إرسال
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

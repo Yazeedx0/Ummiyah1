@@ -20,30 +20,30 @@ export const PreviewMessage = ({
 }) => {
   return (
     <motion.div
-      className="w-full px-3 group/message"
+      className="w-full px-3 py-2 group/message"
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       data-role={message.role}
     >
       <div
         className={cn(
-          "flex gap-4 px-3 py-2 rounded-xl",
+          "flex gap-3 px-4 py-3 rounded-lg",
           message.role === "user" 
-            ? "bg-[#E6F0FA] w-full md:w-[90%] mr-auto flex-row-reverse" 
-            : "bg-[#E6F0FA] w-full md:w-[90%]"
+            ? "bg-[#E6F0FA] w-full md:w-[85%] mr-auto flex-row-reverse" 
+            : "bg-[#E6F0FA] w-full md:w-[85%]"
         )}
       >
-        <div className="size-6 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-[#4A90E2]">
+        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-[#DADDE1] bg-[#3B82F6]">
           {message.role === "user" ? (
-            <UserIcon size={14} className="text-white" />
+            <UserIcon size={16} className="text-white" />
           ) : (
-            <SparklesIcon size={14} className="text-white" />
+            <SparklesIcon size={16} className="text-white" />
           )}
         </div>
 
         <div className="flex flex-col gap-2 w-full text-right">
           {message.content && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <Markdown>{message.content as string}</Markdown>
             </div>
           )}
@@ -104,13 +104,13 @@ export const ThinkingMessage = () => {
       animate={{ y: 0, opacity: 1, transition: { delay: 0.5 } }}
     >
       <div
-        className="flex gap-4 w-full md:w-[90%] bg-[#E6F0FA] rounded-xl"
+        className="flex gap-3 w-full md:w-[85%] bg-[#E6F0FA] rounded-lg px-4 py-3"
       >
-        <div className="size-6 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-[#4A90E2] m-3">
-          <SparklesIcon size={14} className="text-white" />
+        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-[#DADDE1] bg-[#3B82F6]">
+          <SparklesIcon size={16} className="text-white" />
         </div>
 
-        <div className="flex flex-col gap-2 w-full py-3">
+        <div className="flex flex-col gap-2 w-full py-1">
           <div className="flex flex-col gap-4 text-muted-foreground text-right">
             جاري التفكير...
           </div>

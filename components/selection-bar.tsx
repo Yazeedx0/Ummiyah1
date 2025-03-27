@@ -24,9 +24,9 @@ export function SelectionBar({ label, options, selected, onSelect }: SelectionBa
         onClick={() => setIsOpen(!isOpen)}
       >
         <ChevronDownIcon size={20} className={cn("transition-transform", isOpen && "transform rotate-180")} />
-        <div className="flex items-center gap-2 text-right">
-          <span className="font-bold text-lg">{selected}</span>
-          <span className="text-lg">{label}:</span>
+        <div className="flex flex-col items-end text-right">
+          <span className="text-lg font-bold">{label}</span>
+          <span className="text-base">{selected}</span>
         </div>
       </div>
       

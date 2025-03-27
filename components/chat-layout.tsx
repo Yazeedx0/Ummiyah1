@@ -1,5 +1,5 @@
 import Header from "./header";
-import { LessonSection } from "./lesson-section";
+import { LessonNavigation } from "./lesson-navigation";
 
 interface ChatLayoutProps {
   children: React.ReactNode;
@@ -17,8 +17,8 @@ export default function ChatLayout({ children }: ChatLayoutProps) {
         </div>
         
         {/* Left side - Lesson Content (50% width) */}
-        <div className="w-1/2 h-full">
-          <LessonSection />
+        <div className="w-1/2 h-full flex flex-col">
+          <LessonNavigation />
         </div>
       </div>
     </div>

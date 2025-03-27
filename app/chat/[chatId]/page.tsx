@@ -2,13 +2,16 @@
 
 import { useChat } from "ai/react";
 import { useEffect, useRef } from "react";
+import React from "react";
 import { PreviewMessage, ThinkingMessage } from "@/components/message";
 import { MultimodalInput } from "@/components/multimodal-input";
 import ChatLayout from "@/components/chat-layout";
 import { Overview } from "@/components/overview";
 
-export default function ChatPage({ params }: { params: { chatId: string } }) {
-  const { chatId } = params;
+export default function ChatPage({ params }: { params: Promise<{ chatId: string }> }) {
+  const unwrappedParams = React.use(params);
+  const { chatId } = unwrappedParams;
+  
   const {
     messages,
     setMessages,

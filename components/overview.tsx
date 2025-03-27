@@ -5,35 +5,35 @@ export const Overview = () => {
   return (
     <motion.div
       key="overview"
-      className="w-full px-3"
+      className="w-full px-3 space-y-4"
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ delay: 0.5 }}
     >
-      {/* First Bubble (Assistant Message) - on the right */}
-      <div className="flex gap-4 mb-10">
-        <div className="size-6 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-[#4A90E2]">
-          <SparklesIcon size={14} className="text-white" />
+      {/* First Bubble (Assistant Message) */}
+      <div className="flex gap-3">
+        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-[#DADDE1] bg-[#3B82F6]">
+          <SparklesIcon size={16} className="text-white" />
         </div>
         <div 
-          className="w-full md:w-[90%] p-4 rounded-[10px] bg-[#E6F0FA] text-right"
+          className="w-full md:w-[85%] p-4 rounded-lg bg-[#E6F0FA] text-right"
         >
           مرحبًا! أنا أُمية، مساعدتك التعليمية. يمكنني مساعدتك في فهم دروسك وحل الواجبات. ما الذي تحتاج إليه اليوم؟
         </div>
       </div>
 
-      {/* Second Bubble (User Message) - on the left */}
-      <div className="flex flex-row-reverse gap-4">
-        <div className="size-6 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-[#4A90E2]">
-          <UserIcon size={14} className="text-white" />
+      {/* Second Bubble (User Message) */}
+      <div className="flex flex-row-reverse gap-3">
+        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-[#DADDE1] bg-[#3B82F6]">
+          <UserIcon size={16} className="text-white" />
         </div>
         <div 
-          className="w-full md:w-[90%] p-4 rounded-[10px] bg-[#E6F0FA] text-right"
+          className="w-full md:w-[85%] p-4 rounded-lg bg-[#E6F0FA] text-right"
         >
-          مرحبًا! أحتاج مساعدة في فهم درس اليوم.
+          أحتاج مساعدة في فهم درس اليوم عن تصديق الكتاب. هل يمكنك شرح النقاط الرئيسية؟
         </div>
       </div>
     </motion.div>
   );
-};
+}

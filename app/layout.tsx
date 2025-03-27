@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import { Tajawal, Poppins } from "next/font/google";
+import { Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+
+const notoSansArabic = Noto_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-noto-sans-arabic",
+});
 
 const tajawal = Tajawal({
   subsets: ["arabic"],
@@ -29,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={`${tajawal.variable} ${poppins.variable} font-tajawal`}>
+      <body className={`${notoSansArabic.variable} ${tajawal.variable} ${poppins.variable} font-noto-sans`}>
         {children}
         <Toaster position="top-center" richColors />
       </body>
