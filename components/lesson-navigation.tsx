@@ -33,6 +33,7 @@ export function LessonNavigation() {
   
 
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   
   
   const handleDropdownToggle = (id: string) => {
@@ -47,7 +48,8 @@ export function LessonNavigation() {
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (openDropdown && dropdownRefs.current[openDropdown] && 
-          !dropdownRefs.current[openDropdown]?.contains(event.target as Node)) {
+          !dropdownRefs.current[openDropdown]?.contains(event.target as Node) &&
+          !buttonRefs.current[openDropdown]?.contains(event.target as Node)) {
         setOpenDropdown(null);
       }
     }
@@ -66,8 +68,11 @@ export function LessonNavigation() {
           {/* قائمة السنة الدراسية */}
           <div className="relative" ref={el => dropdownRefs.current['grade'] = el}>
             <button
+              ref={el => buttonRefs.current['grade'] = el}
               onClick={() => handleDropdownToggle('grade')}
               className="flex items-center gap-2 text-[#3B82F6] hover:text-[#1D4ED8] font-medium transition-colors"
+              aria-haspopup="true"
+              aria-expanded={openDropdown === 'grade'}
             >
               {selectedGrade}
               <ChevronDownIcon 
@@ -79,7 +84,11 @@ export function LessonNavigation() {
               />
             </button>
             {openDropdown === 'grade' && (
-              <div className="absolute top-full right-0 mt-2 bg-white border border-[#E5E9F0] rounded-lg shadow-lg z-10 w-48 overflow-hidden">
+              <div 
+                className="absolute top-full right-0 mt-1 bg-white border border-[#E5E9F0] rounded-lg shadow-lg z-10 w-48 overflow-hidden"
+                role="menu"
+                dir="rtl"
+              >
                 {grades.map(grade => (
                   <button
                     key={grade}
@@ -91,6 +100,7 @@ export function LessonNavigation() {
                       setSelectedGrade(grade);
                       setOpenDropdown(null);
                     }}
+                    role="menuitem"
                   >
                     {grade}
                   </button>
@@ -102,8 +112,11 @@ export function LessonNavigation() {
           {/* قائمة المادة */}
           <div className="relative" ref={el => dropdownRefs.current['subject'] = el}>
             <button
+              ref={el => buttonRefs.current['subject'] = el}
               onClick={() => handleDropdownToggle('subject')}
               className="flex items-center gap-2 text-[#3B82F6] hover:text-[#1D4ED8] font-medium transition-colors"
+              aria-haspopup="true"
+              aria-expanded={openDropdown === 'subject'}
             >
               {selectedSubject}
               <ChevronDownIcon 
@@ -115,7 +128,11 @@ export function LessonNavigation() {
               />
             </button>
             {openDropdown === 'subject' && (
-              <div className="absolute top-full right-0 mt-2 bg-white border border-[#E5E9F0] rounded-lg shadow-lg z-10 w-48 overflow-hidden">
+              <div 
+                className="absolute top-full right-0 mt-1 bg-white border border-[#E5E9F0] rounded-lg shadow-lg z-10 w-48 overflow-hidden"
+                role="menu"
+                dir="rtl"
+              >
                 {subjects.map(subject => (
                   <button
                     key={subject}
@@ -127,6 +144,7 @@ export function LessonNavigation() {
                       setSelectedSubject(subject);
                       setOpenDropdown(null);
                     }}
+                    role="menuitem"
                   >
                     {subject}
                   </button>
@@ -138,8 +156,11 @@ export function LessonNavigation() {
           {/* قائمة الوحدة */}
           <div className="relative" ref={el => dropdownRefs.current['unit'] = el}>
             <button
+              ref={el => buttonRefs.current['unit'] = el}
               onClick={() => handleDropdownToggle('unit')}
               className="flex items-center gap-2 text-[#3B82F6] hover:text-[#1D4ED8] font-medium transition-colors"
+              aria-haspopup="true"
+              aria-expanded={openDropdown === 'unit'}
             >
               {selectedUnit}
               <ChevronDownIcon 
@@ -151,7 +172,11 @@ export function LessonNavigation() {
               />
             </button>
             {openDropdown === 'unit' && (
-              <div className="absolute top-full right-0 mt-2 bg-white border border-[#E5E9F0] rounded-lg shadow-lg z-10 w-48 overflow-hidden">
+              <div 
+                className="absolute top-full right-0 mt-1 bg-white border border-[#E5E9F0] rounded-lg shadow-lg z-10 w-48 overflow-hidden"
+                role="menu"
+                dir="rtl"
+              >
                 {units.map(unit => (
                   <button
                     key={unit}
@@ -163,6 +188,7 @@ export function LessonNavigation() {
                       setSelectedUnit(unit);
                       setOpenDropdown(null);
                     }}
+                    role="menuitem"
                   >
                     {unit}
                   </button>
@@ -171,11 +197,15 @@ export function LessonNavigation() {
             )}
           </div>
           
-          {/* قائمة الدرس */}
+          {/* قائمة الدرس - FIXED VERSION */}
           <div className="relative" ref={el => dropdownRefs.current['lesson'] = el}>
             <button
+              ref={el => buttonRefs.current['lesson'] = el}
               onClick={() => handleDropdownToggle('lesson')}
               className="flex items-center gap-2 text-[#3B82F6] hover:text-[#1D4ED8] font-medium transition-colors"
+              aria-haspopup="true"
+              aria-expanded={openDropdown === 'lesson'}
+              id="lesson-menu-button"
             >
               الدرس
               <ChevronDownIcon 
@@ -187,18 +217,28 @@ export function LessonNavigation() {
               />
             </button>
             {openDropdown === 'lesson' && (
-              <div className="absolute top-full right-0 mt-2 bg-white border border-[#E5E9F0] rounded-lg shadow-lg z-10 w-64 overflow-hidden">
+              <div 
+                className="absolute top-[calc(100%+0.25rem)] right-0 bg-white border border-[#E5E9F0] rounded-lg shadow-md z-10 w-64 py-1 max-h-60 overflow-y-auto"
+                role="menu"
+                dir="rtl"
+                aria-labelledby="lesson-menu-button"
+                style={{
+                  transform: "translate(0, 0)",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+                }}
+              >
                 {lessons.map(lesson => (
                   <button
                     key={lesson}
                     className={cn(
-                      "block w-full text-right px-4 py-3 hover:bg-[#F3F4F6] transition-colors",
+                      "block w-full text-right px-4 py-3 hover:bg-[#F3F4F6] transition-colors focus:bg-[#EBF5FF] focus:outline-none",
                       selectedLesson === lesson && "bg-[#EBF5FF] font-medium text-[#3B82F6]"
                     )}
                     onClick={() => {
                       setSelectedLesson(lesson);
                       setOpenDropdown(null);
                     }}
+                    role="menuitem"
                   >
                     {lesson}
                   </button>

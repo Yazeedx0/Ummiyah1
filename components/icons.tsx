@@ -10,7 +10,7 @@ export const BookOpenIcon = ({ size = 16 }: { size?: number }) => (
     viewBox="0 0 24 24" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path 
       d="M12 6.25278V19.2528M12 6.25278C10.8321 5.47686 9.24649 5 7.5 5C5.75351 5 4.16789 5.47686 3 6.25278V19.2528C4.16789 18.4769 5.75351 18 7.5 18C9.24649 18 10.8321 18.4769 12 19.2528M12 6.25278C13.1679 5.47686 14.7535 5 16.5 5C18.2465 5 19.8321 5.47686 21 6.25278V19.2528C19.8321 18.4769 18.2465 18 16.5 18C14.7535 18 13.1679 18.4769 12 19.2528" 
@@ -29,7 +29,7 @@ export const TargetIcon = ({ size = 16 }: { size?: number }) => (
     viewBox="0 0 24 24" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path 
       d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" 
@@ -62,7 +62,7 @@ export const QuestionMarkIcon = ({ size = 16 }: { size?: number }) => (
     viewBox="0 0 24 24" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path 
       d="M12 19V19.01M12 15C12 11 16 11 16 8C16 5.79086 14.2091 4 12 4C10.1361 4 8.57002 5.27477 8.12598 7" 
@@ -88,7 +88,7 @@ export const ChartIcon = ({ size = 16 }: { size?: number }) => (
     viewBox="0 0 24 24" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path 
       d="M8 13V17M16 8V17M12 3V17M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" 
@@ -106,7 +106,7 @@ export const BotIcon = ({ size = 16 }: { size?: number }) => (
     width={size}
     strokeLinejoin="round"
     viewBox="0 0 16 16"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path
       fillRule="evenodd"
@@ -123,7 +123,7 @@ export const UserIcon = ({ size = 16 }: { size?: number }) => (
     width={size}
     strokeLinejoin="round"
     viewBox="0 0 16 16"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path
       fillRule="evenodd"
@@ -139,7 +139,7 @@ export const SparklesIcon = ({ size = 16 }: { size?: number }) => (
     height={size}
     width={size}
     viewBox="0 0 16 16"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path
       d="M2.5 0.5V0H3.5V0.5C3.5 1.60457 4.39543 2.5 5.5 2.5H6V3V3.5H5.5C4.39543 3.5 3.5 4.39543 3.5 5.5V6H3H2.5V5.5C2.5 4.39543 1.60457 3.5 0.5 3.5H0V3V2.5H0.5C1.60457 2.5 2.5 1.60457 2.5 0.5Z"
@@ -158,7 +158,7 @@ export const ChevronDownIcon = ({ size = 16 }: { size?: number }) => (
     width={size}
     strokeLinejoin="round"
     viewBox="0 0 16 16"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path
       fillRule="evenodd"
@@ -174,7 +174,7 @@ export const StopIcon = ({ size = 16 }: { size?: number }) => (
     height={size}
     width={size}
     viewBox="0 0 16 16"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path
       fillRule="evenodd"
@@ -191,7 +191,7 @@ export const LoaderIcon = ({ size = 16 }: { size?: number }) => (
     width={size}
     strokeLinejoin="round"
     viewBox="0 0 16 16"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <g clipPath="url(#clip0_2393_1490)">
       <path d="M8 0V4" stroke="currentColor" strokeWidth="1.5" />
@@ -264,7 +264,7 @@ export const CheckCircleFillIcon = ({ size = 16 }: { size?: number }) => (
     width={size}
     strokeLinejoin="round"
     viewBox="0 0 16 16"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path
       fillRule="evenodd"
@@ -281,7 +281,7 @@ export const ThumbDownIcon = ({ size = 16 }: { size?: number }) => (
     width={size}
     strokeLinejoin="round"
     viewBox="0 0 16 16"
-    style={{ color: "currentcolor" }}
+    style={{ color: "currentColor" }}
   >
     <path
       fillRule="evenodd"
@@ -292,7 +292,24 @@ export const ThumbDownIcon = ({ size = 16 }: { size?: number }) => (
   </svg>
 );
 
-export {
-  PaperclipIcon,
-  SmileIcon,
-}
+export const FileIcon = ({ size = 16 }: { size?: number }) => (
+  <svg
+    height={size}
+    width={size}
+    strokeLinejoin="round"
+    viewBox="0 0 16 16"
+    style={{ color: "currentColor" }}
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M14.5 13.5V6.5V5.41421C14.5 5.149 14.3946 4.89464 14.2071 4.70711L9.79289 0.292893C9.60536 0.105357 9.351 0 9.08579 0H8H3H1.5V1.5V13.5C1.5 14.8807 2.61929 16 4 16H12C13.3807 16 14.5 14.8807 14.5 13.5ZM13 13.5V6.5H9.5H8V5V1.5H3V13.5C3 14.0523 3.44772 14.5 4 14.5H12C12.5523 14.5 13 14.0523 13 13.5ZM9.5 5V2.12132L12.3787 5H9.5ZM5.13 5.00062H4.505V6.25062H5.13H6H6.625V5.00062H6H5.13ZM4.505 8H5.13H11H11.625V9.25H11H5.13H4.505V8ZM5.13 11H4.505V12.25H5.13H11H11.625V11H11H5.13Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+export { 
+  PaperclipIcon, 
+  SmileIcon 
+};
