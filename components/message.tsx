@@ -3,7 +3,7 @@
 import type { Message } from "ai";
 import { motion } from "framer-motion";
 
-import { SparklesIcon } from "./icons";
+import { SparklesIcon, UserIcon } from "./icons";
 import { Markdown } from "./markdown";
 import { PreviewAttachment } from "./preview-attachment";
 import { cn } from "@/lib/utils";
@@ -18,21 +18,26 @@ export const PreviewMessage = ({
 }) => {
   return (
     <motion.div
-      className="w-full mx-auto max-w-3xl px-4 group/message"
+      className="w-full px-3 group/message"
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       data-role={message.role}
     >
       <div
         className={cn(
-          "group-data-[role=user]/message:bg-primary group-data-[role=user]/message:text-primary-foreground flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl",
+          "flex gap-4 px-3 py-2 rounded-xl",
+          message.role === "user" 
+            ? "bg-[#E6F0FA] w-full md:w-[90%] ml-auto flex-row-reverse" 
+            : "bg-[#E6F0FA] w-full md:w-[90%]"
         )}
       >
-        {message.role === "assistant" && (
-          <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
-            <SparklesIcon size={14} />
-          </div>
-        )}
+        <div className="size-6 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-[#4A90E2]">
+          {message.role === "user" ? (
+            <UserIcon size={14} className="text-white" />
+          ) : (
+            <SparklesIcon size={14} className="text-white" />
+          )}
+        </div>
 
         <div className="flex flex-col gap-2 w-full">
           {message.content && (
@@ -90,30 +95,22 @@ export const PreviewMessage = ({
 };
 
 export const ThinkingMessage = () => {
-  const role = "assistant";
-
   return (
     <motion.div
-      className="w-full mx-auto max-w-3xl px-4 group/message "
+      className="w-full px-3"
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1, transition: { delay: 1 } }}
-      data-role={role}
     >
       <div
-        className={cn(
-          "flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl",
-          {
-            "group-data-[role=user]/message:bg-muted": true,
-          },
-        )}
+        className="flex gap-4 w-full md:w-[90%] bg-[#E6F0FA] rounded-xl"
       >
-        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
-          <SparklesIcon size={14} />
+        <div className="size-6 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-[#4A90E2] m-3">
+          <SparklesIcon size={14} className="text-white" />
         </div>
 
-        <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-col gap-2 w-full py-3">
           <div className="flex flex-col gap-4 text-muted-foreground">
-            Thinking...
+            جاري التفكير...
           </div>
         </div>
       </div>

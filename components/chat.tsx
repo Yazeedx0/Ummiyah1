@@ -3,8 +3,8 @@
 import { PreviewMessage, ThinkingMessage } from "@/components/message";
 import { MultimodalInput } from "@/components/multimodal-input";
 import { Overview } from "@/components/overview";
+import { Header } from "@/components/header";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
-import { ToolInvocation } from "ai";
 import { useChat } from "ai/react";
 import { toast } from "sonner";
 
@@ -25,7 +25,7 @@ export function Chat() {
     onError: (error) => {
       if (error.message.includes("Too many requests")) {
         toast.error(
-          "You are sending too many messages. Please try again later.",
+          "عذراً، أنت ترسل الكثير من الرسائل. يرجى المحاولة لاحقاً.",
         );
       }
     },
@@ -35,10 +35,11 @@ export function Chat() {
     useScrollToBottom<HTMLDivElement>();
 
   return (
-    <div className="flex flex-col min-w-0 h-[calc(100dvh-52px)] bg-background">
+    <div className="flex flex-col w-full h-[100dvh] bg-white">
+      <Header />
       <div
         ref={messagesContainerRef}
-        className="flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4"
+        className="flex flex-col flex-1 w-full overflow-y-auto py-5 px-0 gap-6"
       >
         {messages.length === 0 && <Overview />}
 
@@ -61,7 +62,7 @@ export function Chat() {
         />
       </div>
 
-      <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
+      <form className="flex w-full bg-[#F5F5F5] py-4 md:py-5 px-3 border-t sticky bottom-0 shadow-sm">
         <MultimodalInput
           chatId={chatId}
           input={input}
@@ -72,6 +73,7 @@ export function Chat() {
           messages={messages}
           setMessages={setMessages}
           append={append}
+          className="text-right"
         />
       </form>
     </div>

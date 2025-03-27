@@ -1,7 +1,6 @@
 "use client";
 
 import type { ChatRequestOptions, CreateMessage, Message } from "ai";
-import { motion } from "framer-motion";
 import type React from "react";
 import {
   useRef,
@@ -15,22 +14,9 @@ import { useLocalStorage, useWindowSize } from "usehooks-ts";
 
 import { cn, sanitizeUIMessages } from "@/lib/utils";
 
-import { ArrowUpIcon, StopIcon } from "./icons";
+import { StopIcon } from "./icons";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-
-const suggestedActions = [
-  {
-    title: "What is the weather",
-    label: "in San Francisco?",
-    action: "What is the weather in San Francisco?",
-  },
-  {
-    title: "How is python useful",
-    label: "for AI engineers?",
-    action: "How is python useful for AI engineers?",
-  },
-];
 
 export function MultimodalInput({
   chatId,
@@ -115,55 +101,24 @@ export function MultimodalInput({
   }, [handleSubmit, setLocalStorageInput, width]);
 
   return (
-    <div className="relative w-full flex flex-col gap-4">
-      {messages.length === 0 && (
-        <div className="grid sm:grid-cols-2 gap-2 w-full">
-          {suggestedActions.map((suggestedAction, index) => (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ delay: 0.05 * index }}
-              key={`suggested-action-${suggestedAction.title}-${index}`}
-              className={index > 1 ? "hidden sm:block" : "block"}
-            >
-              <Button
-                variant="ghost"
-                onClick={async () => {
-                  append({
-                    role: "user",
-                    content: suggestedAction.action,
-                  });
-                }}
-                className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-auto justify-start items-start"
-              >
-                <span className="font-medium">{suggestedAction.title}</span>
-                <span className="text-muted-foreground">
-                  {suggestedAction.label}
-                </span>
-              </Button>
-            </motion.div>
-          ))}
-        </div>
-      )}
-
+    <div className="flex items-center w-full gap-3">
       <Textarea
         ref={textareaRef}
-        placeholder="Send a message..."
+        placeholder="اكتب رسالتك ..."
         value={input}
         onChange={handleInput}
         className={cn(
-          "min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-xl !text-base bg-muted",
+          "min-h-[40px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-[20px] !text-base bg-white border-[#4A90E2] flex-1",
           className,
         )}
-        rows={3}
+        rows={1}
         autoFocus
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
 
             if (isLoading) {
-              toast.error("Please wait for the model to finish its response!");
+              toast.error("يرجى الانتظار حتى ينتهي المساعد من الرد!");
             } else {
               submitForm();
             }
@@ -173,7 +128,7 @@ export function MultimodalInput({
 
       {isLoading ? (
         <Button
-          className="rounded-full p-1.5 h-fit absolute bottom-2 right-2 m-0.5 border dark:border-zinc-600"
+          className="rounded-full h-10 w-10 p-0 bg-[#4A90E2] text-white shrink-0"
           onClick={(event) => {
             event.preventDefault();
             stop();
@@ -184,14 +139,14 @@ export function MultimodalInput({
         </Button>
       ) : (
         <Button
-          className="rounded-full p-1.5 h-fit absolute bottom-2 right-2 m-0.5 border dark:border-zinc-600"
+          className="rounded-full h-10 min-w-10 px-3 py-0 bg-[#4A90E2] text-white text-sm shrink-0"
           onClick={(event) => {
             event.preventDefault();
             submitForm();
           }}
           disabled={input.length === 0}
         >
-          <ArrowUpIcon size={14} />
+          إرسال
         </Button>
       )}
     </div>

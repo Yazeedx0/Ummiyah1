@@ -1,17 +1,22 @@
 import "./globals.css";
-import { GeistSans } from "geist/font/sans";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
-import { Navbar } from "@/components/navbar";
+import { Noto_Sans_Arabic } from 'next/font/google';
+import { useEffect, useState } from "react";
+
+const notoSansArabic = Noto_Sans_Arabic({ 
+  subsets: ['arabic'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-noto-sans-arabic',
+});
 
 export const metadata = {
-  title: "AI SDK Python Streaming Preview",
-  description:
-    "Use the Data Stream Protocol to stream chat completions from a Python endpoint (FastAPI) and display them using the useChat hook in your Next.js application.",
+  title: "أُمية - المساعد الرقمي",
+  description: "أُمية - مساعدك الرقمي الذكي",
   openGraph: {
     images: [
       {
-        url: "/og?title=AI SDK Python Streaming Preview",
+        url: "/og?title=أُمية - المساعد الرقمي",
       },
     ],
   },
@@ -19,7 +24,7 @@ export const metadata = {
     card: "summary_large_image",
     images: [
       {
-        url: "/og?title=AI SDK Python Streaming Preview",
+        url: "/og?title=أُمية - المساعد الرقمي",
       },
     ],
   },
@@ -31,12 +36,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl" suppressHydrationWarning className="h-full">
       <head></head>
-      <body className={cn(GeistSans.className, "antialiased dark")}>
+      <body className={cn(notoSansArabic.className, "antialiased bg-white h-full")} suppressHydrationWarning>
         <Toaster position="top-center" richColors />
-        <Navbar />
-        {children}
+        <main className="flex flex-col w-full h-full">
+          {children}
+        </main>
       </body>
     </html>
   );
