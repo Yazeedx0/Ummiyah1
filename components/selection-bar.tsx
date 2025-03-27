@@ -3,43 +3,59 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon } from "./icons";
+import { Tooltip } from "./ui/tooltip";
 
 interface SelectionBarProps {
   label: string;
   options: string[];
   selected: string;
   onSelect: (option: string) => void;
+  description?: string; // Added for tooltip description
 }
 
-export function SelectionBar({ label, options, selected, onSelect }: SelectionBarProps) {
+export function SelectionBar({ 
+  label, 
+  options, 
+  selected, 
+  onSelect, 
+  description = "انقر لاختيار خيار من القائمة" 
+}: SelectionBarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="w-full mb-4">
-      <div 
-        className={cn(
-          "rounded-lg p-3.5 cursor-pointer flex items-center justify-between border-2 transition-all",
-          isOpen 
-            ? "bg-[#3B82F6] text-white border-[#2563EB] shadow-md" 
-            : "bg-[#E6F0FA] text-[#1F2937] border-[#BFDBFE] hover:bg-[#EFF6FF]"
-        )}
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        role="button"
-        aria-haspopup="listbox"
+      <Tooltip 
+        content={label}
+        description={description}
+        position="right"
+        isRtl={true}
+        color="blue"
       >
-        <ChevronDownIcon 
-          size={22} 
+        <div 
           className={cn(
-            "transition-transform duration-200", 
-            isOpen && "transform rotate-180"
-          )} 
-        />
-        <div className="flex flex-col items-end text-right">
-          <span className="text-lg font-bold">{label}</span>
-          <span className="text-base mt-0.5">{selected}</span>
+            "rounded-lg p-3.5 cursor-pointer flex items-center justify-between border-2 transition-all",
+            isOpen 
+              ? "bg-[#3B82F6] text-white border-[#2563EB] shadow-md" 
+              : "bg-[#E6F0FA] text-[#1F2937] border-[#BFDBFE] hover:bg-[#EFF6FF]"
+          )}
+          onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          role="button"
+          aria-haspopup="listbox"
+        >
+          <ChevronDownIcon 
+            size={22} 
+            className={cn(
+              "transition-transform duration-200", 
+              isOpen && "transform rotate-180"
+            )} 
+          />
+          <div className="flex flex-col items-end text-right">
+            <span className="text-lg font-bold">{label}</span>
+            <span className="text-base mt-0.5">{selected}</span>
+          </div>
         </div>
-      </div>
+      </Tooltip>
       
       {isOpen && (
         <div 

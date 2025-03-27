@@ -52,6 +52,7 @@ export function LessonSection() {
           options={grades}
           selected={selectedGrade}
           onSelect={handleGradeSelect}
+          description="اختر المستوى الدراسي المناسب للمرحلة الابتدائية"
         />
         
         <SelectionBar
@@ -59,6 +60,7 @@ export function LessonSection() {
           options={unitsByGrade[selectedGrade]}
           selected={selectedUnit}
           onSelect={handleUnitSelect}
+          description="اختر الوحدة التعليمية التي ترغب في دراستها"
         />
         
         <SelectionBar
@@ -66,6 +68,7 @@ export function LessonSection() {
           options={lessonsByUnit[selectedUnit]}
           selected={selectedLesson}
           onSelect={setSelectedLesson}
+          description="اختر الدرس المحدد الذي تريد استعراضه"
         />
         
         <div className="mt-6">

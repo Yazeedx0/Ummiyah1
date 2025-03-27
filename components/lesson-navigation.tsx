@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon, BookOpenIcon, TargetIcon, QuestionMarkIcon, ChartIcon } from "./icons";
+import { Tooltip } from "./ui/tooltip";
 
 export function LessonNavigation() {
 
@@ -22,10 +23,30 @@ export function LessonNavigation() {
   
 
   const tabs = [
-    { id: 'content', label: 'المحتوى', icon: BookOpenIcon },
-    { id: 'objectives', label: 'الأهداف التعليمية', icon: TargetIcon },
-    { id: 'questions', label: 'الأسئلة', icon: QuestionMarkIcon },
-    { id: 'evaluation', label: 'تقييمك', icon: ChartIcon }
+    { 
+      id: 'content', 
+      label: 'المحتوى', 
+      icon: BookOpenIcon,
+      description: 'استعراض المادة التعليمية للدرس بشكل كامل مع الشروحات والأمثلة التوضيحية'
+    },
+    { 
+      id: 'objectives', 
+      label: 'الأهداف التعليمية', 
+      icon: TargetIcon,
+      description: 'عرض المهارات والمعارف التي سيكتسبها الطالب بعد إتمام هذا الدرس'
+    },
+    { 
+      id: 'questions', 
+      label: 'الأسئلة', 
+      icon: QuestionMarkIcon,
+      description: 'اختبار الفهم من خلال مجموعة من الأسئلة التفاعلية المتنوعة حول الدرس'
+    },
+    { 
+      id: 'evaluation', 
+      label: 'تقييمك', 
+      icon: ChartIcon,
+      description: 'متابعة مستوى التقدم ونتائج التقييم الخاصة بهذا الدرس مع ملاحظات المعلم'
+    }
   ];
   
 
@@ -259,25 +280,33 @@ export function LessonNavigation() {
         </p>
       </div>
       
-      {/* علامات تبويب المحتوى - بتصميم محسن */}
+      {/* علامات تبويب المحتوى - بتصميم محسن مع إضافة tooltips */}
       <div className="border-b border-[#E5E9F0] px-6">
         <div className="flex gap-2 pt-2">
           {tabs.map(tab => {
             const Icon = tab.icon;
             return (
-              <button
+              <Tooltip 
                 key={tab.id}
-                className={cn(
-                  "py-3 px-5 font-medium rounded-t-lg transition-colors flex items-center gap-2",
-                  selectedTab === tab.id 
-                    ? "bg-[#3B82F6] text-white shadow-sm" 
-                    : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#3B82F6]"
-                )}
-                onClick={() => setSelectedTab(tab.id)}
+                content={tab.label}
+                description={tab.description}
+                position="bottom"
+                isRtl={true}
+                color="blue"
               >
-                <Icon size={16} />
-                {tab.label}
-              </button>
+                <button
+                  className={cn(
+                    "py-3 px-5 font-medium rounded-t-lg transition-colors flex items-center gap-2",
+                    selectedTab === tab.id 
+                      ? "bg-[#3B82F6] text-white shadow-sm" 
+                      : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#3B82F6]"
+                  )}
+                  onClick={() => setSelectedTab(tab.id)}
+                >
+                  <Icon size={16} />
+                  {tab.label}
+                </button>
+              </Tooltip>
             );
           })}
         </div>

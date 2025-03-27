@@ -15,41 +15,61 @@ import { useLocalStorage, useWindowSize } from "usehooks-ts";
 
 import { cn, sanitizeUIMessages } from "@/lib/utils";
 
-import { StopIcon, ChevronDownIcon, PenIcon, SummarizeIcon, ThumbUpIcon, CheckedSquare, DeltaIcon } from "./icons";
+import { StopIcon, ChevronDownIcon, PenIcon, SummarizeIcon, ThumbUpIcon, CheckedSquare, DeltaIcon, LightbulbIcon } from "./icons";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
+import { Tooltip } from "./ui/tooltip";
 
-// Define preset prompts with icons and text
+// Define preset prompts with icons, text and enhanced descriptions in educational order
 const presetPrompts = [
-  {
-    id: 'summarize',
-    icon: SummarizeIcon,
-    label: 'لخص النص',
-    text: 'هل يمكنك تلخيص النص التالي بشكل موجز: '
-  },
-  {
-    id: 'translate',
-    icon: DeltaIcon,
-    label: 'ترجم إلى العربية',
-    text: 'هل يمكنك ترجمة هذا النص إلى اللغة العربية: '
-  },
   {
     id: 'multiple-choice',
     icon: CheckedSquare,
     label: 'أنشئ سؤال اختيار متعدد',
-    text: 'أنشئ سؤال اختيار من متعدد حول هذا الموضوع: '
+    description: 'إنشاء أسئلة تفاعلية مع خيارات متعددة لاختبار فهمك للموضوع',
+    text: 'أنشئ سؤال اختيار من متعدد حول هذا الموضوع: ',
+    color: 'purple',
+    isHighlighted: true
   },
   {
-    id: 'add-title',
-    icon: PenIcon,
-    label: 'أضف عنوانًا',
-    text: 'أقترح عنوانًا مناسبًا لهذا النص: '
+    id: 'summarize',
+    icon: SummarizeIcon,
+    label: 'لخص النص',
+    description: 'تلخيص محتوى طويل إلى نقاط رئيسية مع الحفاظ على الأفكار المهمة',
+    text: 'هل يمكنك تلخيص النص التالي بشكل موجز: ',
+    color: 'blue'
   },
   {
     id: 'rephrase',
     icon: ThumbUpIcon,
     label: 'أعد الصياغة',
-    text: 'هل يمكنك إعادة صياغة هذه الفكرة بأسلوب أوضح: '
+    description: 'إعادة كتابة النص بأسلوب أبسط وأوضح للفهم مع الحفاظ على المعنى الأصلي',
+    text: 'هل يمكنك إعادة صياغة هذه الفكرة بأسلوب أوضح: ',
+    color: 'green'
+  },
+  {
+    id: 'add-title',
+    icon: PenIcon,
+    label: 'أضف عنوانًا',
+    description: 'اقتراح عنوان مناسب يعبر عن الفكرة الرئيسية للنص بشكل دقيق وجذاب',
+    text: 'أقترح عنوانًا مناسبًا لهذا النص: ',
+    color: 'yellow'
+  },
+  {
+    id: 'translate',
+    icon: DeltaIcon,
+    label: 'ترجم إلى العربية',
+    description: 'تحويل النصوص من لغات أخرى إلى اللغة العربية بدقة ووضوح',
+    text: 'هل يمكنك ترجمة هذا النص إلى اللغة العربية: ',
+    color: 'blue'
+  },
+  {
+    id: 'practice-activity',
+    icon: LightbulbIcon,
+    label: 'اقترح نشاط تعليمي',
+    description: 'إنشاء أنشطة عملية وتطبيقية تساعد على تعزيز المهارات وفهم المفاهيم',
+    text: 'هل يمكنك اقتراح نشاط تعليمي مرتبط بهذا الموضوع: ',
+    color: 'green'
   }
 ];
 
@@ -190,18 +210,18 @@ export function MultimodalInput({
       <div className="flex flex-col items-center gap-2 pr-4 relative" ref={promptMenuRef}>
         {isLoading ? (
           <Button
-            className="rounded-full h-10 w-10 min-w-[40px] p-0 bg-[#3B82F6] text-white shrink-0 shadow-md hover:bg-[#2563EB] transition-colors"
+            className="rounded-full h-12 w-12 min-w-[48px] p-0 bg-[#3B82F6] text-white shrink-0 shadow-md hover:bg-[#2563EB] transition-colors"
             onClick={(event) => {
               event.preventDefault();
               stop();
               setMessages((messages) => sanitizeUIMessages(messages));
             }}
           >
-            <StopIcon size={14} />
+            <StopIcon size={18} />
           </Button>
         ) : (
           <Button
-            className="rounded-full h-10 min-w-[80px] px-4 bg-gradient-to-r from-[#3B82F6] to-[#60A5FA] text-white text-sm shrink-0 flex items-center justify-center shadow-md hover:opacity-90 transition-all transform hover:scale-105"
+            className="rounded-full h-12 min-w-[90px] px-5 bg-gradient-to-r from-[#3B82F6] to-[#60A5FA] text-white text-base font-medium shrink-0 flex items-center justify-center shadow-md hover:opacity-90 transition-all transform hover:scale-105"
             onClick={(event) => {
               event.preventDefault();
               submitForm();
@@ -212,36 +232,59 @@ export function MultimodalInput({
           </Button>
         )}
         
-        {/* Prompt Templates Button */}
+        {/* Child-friendly Prompt Templates Button - Improved */}
         <Button
-          className="rounded-full h-8 min-w-[80px] px-2 bg-white border border-[#E5E9F0] text-[#3B82F6] text-sm shrink-0 flex items-center justify-center shadow-sm hover:bg-[#F8FAFC] transition-all"
+          className="rounded-full h-10 min-w-[90px] px-3 bg-white border-2 border-[#D8B4FE] text-[#7C3AED] text-base font-medium shrink-0 flex items-center justify-center shadow-sm hover:bg-[#F3E8FF] transition-all"
           onClick={(event) => {
             event.preventDefault();
             setShowPromptMenu(!showPromptMenu);
           }}
         >
-          <span className="ml-1">قوالب</span>
-          <ChevronDownIcon size={14} className={cn("transition-transform", showPromptMenu && "rotate-180")} />
+          <span className="ml-1">أفكار للرسائل</span>
+          <ChevronDownIcon size={16} className={cn("transition-transform", showPromptMenu && "rotate-180")} />
         </Button>
         
-        {/* Prompt Templates Menu */}
+        {/* Child-friendly Prompt Templates Menu - Improved */}
         {showPromptMenu && (
-          <div className="absolute bottom-full mb-2 left-0 bg-white rounded-lg shadow-md border border-[#E5E9F0] w-64 z-10">
-            <div className="p-2">
-              <h3 className="text-sm font-bold text-[#3B82F6] mb-2 text-right px-2">اختر نموذج رسالة</h3>
+          <div className="absolute bottom-full mb-3 left-0 bg-white rounded-xl shadow-lg border-2 border-[#D8B4FE] w-80 z-10 overflow-hidden">
+            <div className="p-3">
+              <h3 className="text-base font-bold text-[#7C3AED] mb-3 text-right px-2 border-b pb-2 border-[#F3E8FF]">
+                اختر نوع الرسالة
+              </h3>
               
-              <div className="space-y-1">
+              <div className="space-y-2">
                 {presetPrompts.map((prompt) => {
                   const Icon = prompt.icon;
                   return (
-                    <button
+                    <Tooltip 
                       key={prompt.id}
-                      className="flex items-center justify-end gap-2 w-full p-2 text-right text-[#334155] hover:bg-[#F8FAFC] rounded transition-colors"
-                      onClick={() => insertPromptTemplate(prompt.text)}
+                      content={prompt.label}
+                      description={prompt.description}
+                      position="left"
+                      isRtl={true}
+                      color={prompt.color as 'blue' | 'green' | 'yellow' | 'purple'}
+                      isHighlighted={prompt.isHighlighted}
+                      width="md"
                     >
-                      <span className="text-sm">{prompt.label}</span>
-                      <Icon size={14} className="text-[#3B82F6]" />
-                    </button>
+                      <button
+                        className={cn(
+                          "flex items-center justify-end gap-3 w-full p-3 text-right text-[#334155] hover:bg-[#F8FAFC] rounded-lg transition-colors",
+                          prompt.isHighlighted && "bg-[#F3E8FF] border-2 border-[#D8B4FE] shadow-sm"
+                        )}
+                        onClick={() => insertPromptTemplate(prompt.text)}
+                      >
+                        <span className="text-base font-medium">{prompt.label}</span>
+                        <div className={cn(
+                          "flex items-center justify-center rounded-full p-2",
+                          prompt.color === 'blue' && "bg-[#DBEAFE] text-[#3B82F6]",
+                          prompt.color === 'green' && "bg-[#D1FAE5] text-[#10B981]",
+                          prompt.color === 'yellow' && "bg-[#FEF3C7] text-[#F59E0B]",
+                          prompt.color === 'purple' && "bg-[#F3E8FF] text-[#7C3AED]"
+                        )}>
+                          <Icon size={20} className="text-current" />
+                        </div>
+                      </button>
+                    </Tooltip>
                   );
                 })}
               </div>
