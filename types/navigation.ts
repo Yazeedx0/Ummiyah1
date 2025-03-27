@@ -26,4 +26,5 @@ export interface Lesson {
 export interface Objective {
   id: number;
   text: string;
+  category?: string; // Optional category field if available in the database
 }

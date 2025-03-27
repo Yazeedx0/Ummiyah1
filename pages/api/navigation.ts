@@ -6,12 +6,25 @@ const prisma = new PrismaClient();
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const navigationData = await prisma.grades.findMany({
+      orderBy: {
+        id: 'asc'
+      },
       include: {
         subjects: {
+          orderBy: {
+            id: 'asc'
+          },
           include: {
             units: {
+              orderBy: {
+                id: 'asc'
+              },
               include: {
-                lessons: true
+                lessons: {
+                  orderBy: {
+                    id: 'asc'  // This ensures lessons are sorted by ID
+                  }
+                }
               }
             }
           }

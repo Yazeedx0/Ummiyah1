@@ -12,10 +12,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const grades = await prisma.grades.findMany({
       include: {
         subjects: {
+          orderBy: {
+            id: 'asc'
+          },
           include: {
             units: {
+              orderBy: {
+                id: 'asc'
+              },
               include: {
                 lessons: {
+                  orderBy: {
+                    id: 'asc'
+                  },
                   include: {
                     objectives: true
                   }

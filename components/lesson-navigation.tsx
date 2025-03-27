@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { ChevronDownIcon, BookOpenIcon, TargetIcon, QuestionMarkIcon, ChartIcon } from "./icons";
 import { Tooltip } from "./ui/tooltip";
 import { Grade, Subject, Unit, Lesson } from "@/types/navigation";
+import { LessonContentFormatter } from "./lesson-content-formatter";
+import { formatContent } from "@/lib/content-formatter";
 
 const tabs = [
   { 
@@ -67,6 +69,24 @@ export function LessonNavigation() {
         if (!response.ok) throw new Error('Failed to fetch data');
         
         const data = await response.json();
+        
+        // DEBUG: Log all lessons to inspect their content
+        let allLessons = [];
+        data.forEach(grade => {
+          grade.subjects?.forEach(subject => {
+            subject.units?.forEach(unit => {
+              if (unit.lessons) {
+                allLessons.push(...unit.lessons.map(lesson => ({
+                  id: lesson.id,
+                  title: lesson.title,
+                  content: lesson.content ? `${lesson.content.substring(0, 50)}...` : null
+                })));
+              }
+            });
+          });
+        });
+        console.log('All lessons:', allLessons);
+        
         setNavigationData(data);
         
         if (data.length > 0) {
@@ -155,6 +175,33 @@ export function LessonNavigation() {
     </div>
   );
 
+  const currentLesson = getCurrentLesson();
+  
+  // DEBUG: Add logging for content validation
+  console.log('Current lesson:', currentLesson?.id, currentLesson?.title);
+  console.log('Content exists:', Boolean(currentLesson?.content));
+  if (currentLesson?.content) {
+    console.log('Content length:', currentLesson.content.length);
+    console.log('Content sample:', currentLesson.content.substring(0, 100));
+  }
+  
+  // Improved content validation - check if content exists and isn't just HTML tags or whitespace
+  const hasContent = Boolean(currentLesson?.content && 
+    currentLesson.content.trim() !== '' && 
+    !currentLesson.content.match(/^(<[^>]*>|\s)*$/));
+  
+  console.log('Has content (after validation):', hasContent);
+
+  // Format the content for display
+  const formattedContent = hasContent ? formatContent(currentLesson?.content) : '';
+
+  // Auto-select objectives tab if content tab is selected but no content exists
+  useEffect(() => {
+    if (selections.tab === 'content' && !hasContent) {
+      setSelections(prev => ({ ...prev, tab: 'objectives' }));
+    }
+  }, [selections.lessonId, hasContent, selections.tab]);
+
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -191,53 +238,86 @@ export function LessonNavigation() {
       
       <div className="border-b border-[#E5E9F0] px-6">
         <div className="flex gap-2 pt-2">
-          {tabs.map(tab => {
-            const Icon = tab.icon;
-            return (
-              <Tooltip 
-                key={tab.id}
-                content={tab.label}
-                description={tab.description}
-                position="bottom"
-                isRtl={true}
-                color="blue"
-              >
-                <button
-                  className={cn(
-                    "py-3 px-5 font-medium rounded-t-lg transition-colors flex items-center gap-2",
-                    selections.tab === tab.id 
-                      ? "bg-[#3B82F6] text-white shadow-sm" 
-                      : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#3B82F6]"
-                  )}
-                  onClick={() => setSelections(prev => ({ ...prev, tab: tab.id }))}
+          {tabs
+            // Filter out content tab if no meaningful content exists
+            .filter(tab => tab.id !== 'content' || hasContent)
+            .map(tab => {
+              const Icon = tab.icon;
+              return (
+                <Tooltip 
+                  key={tab.id}
+                  content={tab.label}
+                  description={tab.description}
+                  position="bottom"
+                  isRtl={true}
+                  color="blue"
                 >
-                  <Icon size={16} />
-                  {tab.label}
-                </button>
-              </Tooltip>
-            );
-          })}
+                  <button
+                    className={cn(
+                      "py-3 px-5 font-medium rounded-t-lg transition-colors flex items-center gap-2",
+                      selections.tab === tab.id 
+                        ? "bg-[#3B82F6] text-white shadow-sm" 
+                        : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#3B82F6]"
+                    )}
+                    onClick={() => setSelections(prev => ({ ...prev, tab: tab.id }))}
+                  >
+                    <Icon size={16} />
+                    {tab.label}
+                  </button>
+                </Tooltip>
+              );
+            })}
         </div>
       </div>
       
       <div className="flex-1 overflow-y-auto p-6 bg-white">
-        {selections.tab === 'content' && getCurrentLesson()?.content && (
-          <div className="prose max-w-none text-right">
-            <div dangerouslySetInnerHTML={{ __html: getCurrentLesson()?.content || '' }} />
+        {selections.tab === 'content' && hasContent && (
+          <div className="prose max-w-none text-right bg-[#FAFAFA] p-5 rounded-lg border border-[#E5E9F0] shadow-sm">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-[#E5E9F0]">
+              <button 
+                onClick={() => {
+                  if (currentLesson?.content) {
+                    navigator.clipboard.writeText(currentLesson.content.replace(/<[^>]*>/g, ' '));
+                  }
+                }}
+                className="text-[#3B82F6] hover:text-[#1D4ED8] flex items-center gap-1 text-sm py-1 px-2 rounded hover:bg-[#EBF5FF] transition-colors"
+                title="نسخ المحتوى"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                نسخ
+              </button>
+              <h3 className="text-lg font-semibold text-[#1E3A8A]">محتوى الدرس</h3>
+            </div>
+            <div 
+              className="leading-relaxed text-[#334155] lesson-content" 
+              dir="rtl"
+              dangerouslySetInnerHTML={{ __html: formattedContent }}
+            />
+          </div>
+        )}
+        
+        {/* This section should never appear due to the tab filtering and auto-selection,
+            but we'll keep it as a fallback just in case */}
+        {selections.tab === 'content' && !hasContent && (
+          <div className="flex items-center justify-center h-full p-8 bg-[#F8FAFC] rounded-lg border border-dashed border-[#CBD5E1]">
+            <div className="text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-[#94A3B8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p className="text-[#64748B] mt-3 font-medium">لم يتم إضافة محتوى لهذا الدرس بعد</p>
+              <p className="text-[#94A3B8] mt-1 text-sm">يرجى الانتقال إلى الأهداف التعليمية لمعرفة المزيد</p>
+            </div>
           </div>
         )}
         
         {selections.tab === 'objectives' && (
-          <div className="prose max-w-none text-right">
-            <p className="text-[#334155] mb-4">بعد دراسة هذا الدرس، سيكون الطالب قادراً على:</p>
-            <ul className="text-right list-disc pr-6 space-y-2">
-              {getCurrentLesson()?.objectives.map(objective => (
-                <li key={objective.id} className="text-[#334155]">
-                  {objective.text}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <LessonContentFormatter 
+            lesson={getCurrentLesson()} 
+            unitName={getCurrentUnit()?.name}
+          />
         )}
         
         {selections.tab === 'questions' && (
