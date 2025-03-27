@@ -14,7 +14,7 @@ import { useLocalStorage, useWindowSize } from "usehooks-ts";
 
 import { cn, sanitizeUIMessages } from "@/lib/utils";
 
-import { PaperclipIcon, SmileIcon, StopIcon } from "./icons";
+import { StopIcon } from "./icons";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 
@@ -126,15 +126,7 @@ export function MultimodalInput({
         }}
       />
       
-      <div className="flex items-center gap-3 pr-4">
-        <button className="text-[#3B82F6] hover:bg-blue-50 p-2 rounded-full">
-          <SmileIcon size={20} />
-        </button>
-        
-        <button className="text-[#3B82F6] hover:bg-blue-50 p-2 rounded-full">
-          <PaperclipIcon size={20} />
-        </button>
-        
+      <div className="flex items-center pr-4">
         {isLoading ? (
           <Button
             className="rounded-full h-10 w-10 min-w-[40px] p-0 bg-[#3B82F6] text-white shrink-0"

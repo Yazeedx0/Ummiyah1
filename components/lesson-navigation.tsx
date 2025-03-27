@@ -2,18 +2,25 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { LessonContent } from "./lesson-content";
+import { ChevronDownIcon } from "./icons";
 
 export function LessonNavigation() {
-  // Define the navigation items
-  const navItems = [
-    { id: 'grade', label: 'السنة الدراسية' },
-    { id: 'subject', label: 'المادة' },
-    { id: 'unit', label: 'الوحدة' },
-    { id: 'lesson', label: 'الدرس' }
-  ];
+  // تعريف الأصناف
+  const grades = ["الصف الأول", "الصف الثاني", "الصف الثالث", "الصف الرابع", "الصف الخامس", "الصف السادس"];
+  const subjects = ["اللغة العربية", "الرياضيات", "العلوم", "الدراسات الإسلامية", "الاجتماعيات"];
+  const units = ["الوحدة الأولى", "الوحدة الثانية", "الوحدة الثالثة", "الوحدة الرابعة"];
+  const lessons = ["الدرس الأول: أُصَدِّقُ كِتابِي", "الدرس الثاني: حواس الإنسان", "الدرس الثالث: خيرنا لأهلنا"];
   
-  // Define tabs for content
+  // تعريف حالة البرنامج للاختيارات
+  const [selectedGrade, setSelectedGrade] = useState(grades[0]);
+  const [selectedSubject, setSelectedSubject] = useState(subjects[0]);
+  const [selectedUnit, setSelectedUnit] = useState(units[0]);
+  const [selectedLesson, setSelectedLesson] = useState(lessons[0]);
+  
+  // حالة فتح وإغلاق القوائم المنسدلة
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  
+  // تعريف علامات التبويب للمحتوى
   const tabs = [
     { id: 'content', label: 'المحتوى' },
     { id: 'objectives', label: 'الأهداف التعليمية' },
@@ -21,36 +28,177 @@ export function LessonNavigation() {
     { id: 'evaluation', label: 'تقييمك' }
   ];
   
-  // State for selected tab
+  // حالة علامة التبويب المحددة
   const [selectedTab, setSelectedTab] = useState('content');
   
-  // Lesson path (this would come from your navigation state in a real app)
-  const lessonPath = "الوحدة الأولى، الدرس الأول: أُصَدِّقُ كِتابِي";
+  // دالة للتعامل مع فتح وإغلاق القوائم المنسدلة
+  const handleDropdownToggle = (id: string) => {
+    if (openDropdown === id) {
+      setOpenDropdown(null);
+    } else {
+      setOpenDropdown(id);
+    }
+  };
   
   return (
     <div className="h-full flex flex-col">
-      {/* Navigation bar */}
+      {/* شريط التنقل */}
       <div className="border-b border-[#E6E6E6]">
         <nav className="flex justify-between px-6 py-3">
-          {navItems.map(item => (
+          {/* قائمة السنة الدراسية */}
+          <div className="relative">
             <button
-              key={item.id}
-              className="text-[#3B82F6] hover:text-[#1D4ED8] font-medium"
+              onClick={() => handleDropdownToggle('grade')}
+              className="flex items-center gap-2 text-[#3B82F6] hover:text-[#1D4ED8] font-medium"
             >
-              {item.label}
+              {selectedGrade}
+              <ChevronDownIcon 
+                size={16} 
+                className={cn(
+                  "transition-transform", 
+                  openDropdown === 'grade' && "transform rotate-180"
+                )} 
+              />
             </button>
-          ))}
+            {openDropdown === 'grade' && (
+              <div className="absolute top-full right-0 mt-1 bg-white border border-[#E6E6E6] rounded-md shadow-md z-10 w-40">
+                {grades.map(grade => (
+                  <button
+                    key={grade}
+                    className={cn(
+                      "block w-full text-right px-4 py-2 hover:bg-[#F3F4F6]",
+                      selectedGrade === grade && "bg-[#E6F0FA] font-medium"
+                    )}
+                    onClick={() => {
+                      setSelectedGrade(grade);
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    {grade}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* قائمة المادة */}
+          <div className="relative">
+            <button
+              onClick={() => handleDropdownToggle('subject')}
+              className="flex items-center gap-2 text-[#3B82F6] hover:text-[#1D4ED8] font-medium"
+            >
+              {selectedSubject}
+              <ChevronDownIcon 
+                size={16} 
+                className={cn(
+                  "transition-transform", 
+                  openDropdown === 'subject' && "transform rotate-180"
+                )} 
+              />
+            </button>
+            {openDropdown === 'subject' && (
+              <div className="absolute top-full right-0 mt-1 bg-white border border-[#E6E6E6] rounded-md shadow-md z-10 w-40">
+                {subjects.map(subject => (
+                  <button
+                    key={subject}
+                    className={cn(
+                      "block w-full text-right px-4 py-2 hover:bg-[#F3F4F6]",
+                      selectedSubject === subject && "bg-[#E6F0FA] font-medium"
+                    )}
+                    onClick={() => {
+                      setSelectedSubject(subject);
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    {subject}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* قائمة الوحدة */}
+          <div className="relative">
+            <button
+              onClick={() => handleDropdownToggle('unit')}
+              className="flex items-center gap-2 text-[#3B82F6] hover:text-[#1D4ED8] font-medium"
+            >
+              {selectedUnit}
+              <ChevronDownIcon 
+                size={16} 
+                className={cn(
+                  "transition-transform", 
+                  openDropdown === 'unit' && "transform rotate-180"
+                )} 
+              />
+            </button>
+            {openDropdown === 'unit' && (
+              <div className="absolute top-full right-0 mt-1 bg-white border border-[#E6E6E6] rounded-md shadow-md z-10 w-40">
+                {units.map(unit => (
+                  <button
+                    key={unit}
+                    className={cn(
+                      "block w-full text-right px-4 py-2 hover:bg-[#F3F4F6]",
+                      selectedUnit === unit && "bg-[#E6F0FA] font-medium"
+                    )}
+                    onClick={() => {
+                      setSelectedUnit(unit);
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    {unit}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* قائمة الدرس */}
+          <div className="relative">
+            <button
+              onClick={() => handleDropdownToggle('lesson')}
+              className="flex items-center gap-2 text-[#3B82F6] hover:text-[#1D4ED8] font-medium"
+            >
+              الدرس
+              <ChevronDownIcon 
+                size={16} 
+                className={cn(
+                  "transition-transform", 
+                  openDropdown === 'lesson' && "transform rotate-180"
+                )} 
+              />
+            </button>
+            {openDropdown === 'lesson' && (
+              <div className="absolute top-full right-0 mt-1 bg-white border border-[#E6E6E6] rounded-md shadow-md z-10 w-64">
+                {lessons.map(lesson => (
+                  <button
+                    key={lesson}
+                    className={cn(
+                      "block w-full text-right px-4 py-2 hover:bg-[#F3F4F6]",
+                      selectedLesson === lesson && "bg-[#E6F0FA] font-medium"
+                    )}
+                    onClick={() => {
+                      setSelectedLesson(lesson);
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    {lesson}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </nav>
       </div>
       
-      {/* Lesson path */}
+      {/* مسار الدرس */}
       <div className="px-6 py-4 border-b border-[#E6E6E6]">
         <h2 className="text-xl font-bold text-[#1E3A8A]">
-          {lessonPath}
+          {selectedGrade} / {selectedSubject} / {selectedUnit} / {selectedLesson.split(": ")[1] || selectedLesson}
         </h2>
       </div>
       
-      {/* Content tabs */}
+      {/* علامات تبويب المحتوى */}
       <div className="border-b border-[#E6E6E6]">
         <div className="flex px-6">
           {tabs.map(tab => (
@@ -73,10 +221,11 @@ export function LessonNavigation() {
         </div>
       </div>
       
-      {/* Content area */}
+      {/* منطقة المحتوى */}
       <div className="flex-1 overflow-y-auto p-6">
         {selectedTab === 'content' && (
           <div className="prose max-w-none text-right">
+            <h3 className="text-lg font-bold mb-4">{selectedLesson}</h3>
             <p>محتوى الدرس سيظهر هنا، يمكن أن يحتوي على نصوص وصور وفيديوهات تفاعلية لمساعدة الطالب على فهم المادة التعليمية بشكل أفضل.</p>
             <p>يبدأ الدرس بتقديم للموضوع، ثم يتم شرح المفاهيم الأساسية بالتفصيل، ثم يتم تقديم أمثلة توضيحية، وأخيراً يتم تقديم ملخص للدرس.</p>
           </div>
