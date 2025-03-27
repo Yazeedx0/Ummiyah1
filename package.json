@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@ai-sdk/ui-utils": "^0.0.20",
+    "@prisma/client": "^6.5.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@tailwindcss/typography": "^0.5.10",
     "@types/node": "20.2.4",
     "@types/react": "18.2.7",
     "@types/react-dom": "18.2.4",
@@ -42,7 +44,9 @@
     "types": "link:next-themes/dist/types",
     "typescript": "5.0.4",
     "usehooks-ts": "^3.1.0",
-    "zod": "^3.24.2",
-    "@tailwindcss/typography": "^0.5.10"
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "prisma": "^6.5.0"
   }
 }
