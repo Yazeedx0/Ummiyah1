@@ -14,7 +14,7 @@ import { useLocalStorage, useWindowSize } from "usehooks-ts";
 
 import { cn, sanitizeUIMessages } from "@/lib/utils";
 
-import { StopIcon } from "./icons";
+import { MessageIcon, PaperclipIcon, SmileIcon, StopIcon } from "./icons";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 
@@ -101,14 +101,23 @@ export function MultimodalInput({
   }, [handleSubmit, setLocalStorageInput, width]);
 
   return (
-    <div className="flex items-center w-full gap-3">
+    <div className="flex items-center w-full gap-3 border-t p-3 bg-white">
+      <div className="flex gap-2 text-[#3B82F6]">
+        <button className="hover:bg-blue-50 p-2 rounded-full">
+          <SmileIcon size={24} />
+        </button>
+        <button className="hover:bg-blue-50 p-2 rounded-full">
+          <PaperclipIcon size={24} />
+        </button>
+      </div>
+
       <Textarea
         ref={textareaRef}
-        placeholder="اكتب رسالتك ..."
+        placeholder="اكتب سؤالك هنا..."
         value={input}
         onChange={handleInput}
         className={cn(
-          "min-h-[40px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-[20px] !text-base bg-white border-[#4A90E2] flex-1",
+          "min-h-[40px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-[20px] text-base bg-white border-[#BFDBFE] flex-1 placeholder:text-right dir-rtl",
           className,
         )}
         rows={1}
@@ -128,7 +137,7 @@ export function MultimodalInput({
 
       {isLoading ? (
         <Button
-          className="rounded-full h-10 w-10 p-0 bg-[#4A90E2] text-white shrink-0"
+          className="rounded-full h-10 w-10 p-0 bg-[#3B82F6] text-white shrink-0"
           onClick={(event) => {
             event.preventDefault();
             stop();
@@ -139,7 +148,7 @@ export function MultimodalInput({
         </Button>
       ) : (
         <Button
-          className="rounded-full h-10 min-w-10 px-3 py-0 bg-[#4A90E2] text-white text-sm shrink-0"
+          className="rounded-full h-10 w-10 p-0 bg-[#3B82F6] text-white text-sm shrink-0 flex items-center justify-center"
           onClick={(event) => {
             event.preventDefault();
             submitForm();

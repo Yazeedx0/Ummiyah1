@@ -1,48 +1,37 @@
+import type { Metadata } from "next";
+import { Tajawal, Poppins } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
-import { Noto_Sans_Arabic } from 'next/font/google';
 import { useEffect, useState } from "react";
 
-const notoSansArabic = Noto_Sans_Arabic({ 
-  subsets: ['arabic'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-noto-sans-arabic',
+const tajawal = Tajawal({
+  subsets: ["arabic"],
+  weight: ["400", "500", "700"],
+  variable: "--font-tajawal",
 });
 
-export const metadata = {
-  title: "أُمية - المساعد الرقمي",
-  description: "أُمية - مساعدك الرقمي الذكي",
-  openGraph: {
-    images: [
-      {
-        url: "/og?title=أُمية - المساعد الرقمي",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    images: [
-      {
-        url: "/og?title=أُمية - المساعد الرقمي",
-      },
-    ],
-  },
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-poppins",
+});
+
+export const metadata: Metadata = {
+  title: "أُمية - مساعدتك التعليمية",
+  description: "منصة تعليمية تستخدم الذكاء الاصطناعي لمساعدة الطلاب في مراحلهم الدراسية المبكرة",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning className="h-full">
-      <head></head>
-      <body className={cn(notoSansArabic.className, "antialiased bg-white h-full")} suppressHydrationWarning>
+    <html lang="ar" dir="rtl">
+      <body className={`${tajawal.variable} ${poppins.variable} font-tajawal`}>
+        {children}
         <Toaster position="top-center" richColors />
-        <main className="flex flex-col w-full h-full">
-          {children}
-        </main>
       </body>
     </html>
   );

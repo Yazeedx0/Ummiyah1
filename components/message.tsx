@@ -11,6 +11,8 @@ import { Weather } from "./weather";
 
 export const PreviewMessage = ({
   message,
+  chatId,
+  isLoading,
 }: {
   chatId: string;
   message: Message;
@@ -27,7 +29,7 @@ export const PreviewMessage = ({
         className={cn(
           "flex gap-4 px-3 py-2 rounded-xl",
           message.role === "user" 
-            ? "bg-[#E6F0FA] w-full md:w-[90%] ml-auto flex-row-reverse" 
+            ? "bg-[#E6F0FA] w-full md:w-[90%] mr-auto flex-row-reverse" 
             : "bg-[#E6F0FA] w-full md:w-[90%]"
         )}
       >
@@ -39,7 +41,7 @@ export const PreviewMessage = ({
           )}
         </div>
 
-        <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-col gap-2 w-full text-right">
           {message.content && (
             <div className="flex flex-col gap-4">
               <Markdown>{message.content as string}</Markdown>
@@ -59,7 +61,7 @@ export const PreviewMessage = ({
                       {toolName === "get_current_weather" ? (
                         <Weather weatherAtLocation={result} />
                       ) : (
-                        <pre>{JSON.stringify(result, null, 2)}</pre>
+                        <pre dir="ltr">{JSON.stringify(result, null, 2)}</pre>
                       )}
                     </div>
                   );
@@ -99,7 +101,7 @@ export const ThinkingMessage = () => {
     <motion.div
       className="w-full px-3"
       initial={{ y: 5, opacity: 0 }}
-      animate={{ y: 0, opacity: 1, transition: { delay: 1 } }}
+      animate={{ y: 0, opacity: 1, transition: { delay: 0.5 } }}
     >
       <div
         className="flex gap-4 w-full md:w-[90%] bg-[#E6F0FA] rounded-xl"
@@ -109,7 +111,7 @@ export const ThinkingMessage = () => {
         </div>
 
         <div className="flex flex-col gap-2 w-full py-3">
-          <div className="flex flex-col gap-4 text-muted-foreground">
+          <div className="flex flex-col gap-4 text-muted-foreground text-right">
             جاري التفكير...
           </div>
         </div>

@@ -11,6 +11,7 @@
     --primary-blue: #4A90E2;
     --light-blue: #E6F0FA;
     --input-bg: #F5F5F5;
+    --background-rgb: 255, 255, 255;
 }
 
 /* Full height adjustments */
@@ -85,6 +86,8 @@ html, body, :root {
     body {
         @apply bg-white text-foreground min-h-screen;
         font-family: var(--font-noto-sans-arabic);
+        color: rgb(var(--foreground-rgb));
+        background-color: rgb(var(--background-rgb));
     }
 }
 
@@ -131,4 +134,37 @@ html, body, :root {
     .skeleton-div {
         @apply bg-foreground/20 animate-pulse;
     }
+}
+
+/* RTL specific styles */
+.dir-rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Font utilities */
+.font-tajawal {
+  font-family: var(--font-tajawal), Arial, sans-serif;
+}
+
+.font-poppins {
+  font-family: var(--font-poppins), Arial, sans-serif;
+}
+
+/* For the scrollbar customization */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #BFDBFE;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3B82F6;
 }

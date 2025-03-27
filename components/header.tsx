@@ -1,9 +1,14 @@
-import React from 'react';
+import Link from "next/link";
 
-export const Header: React.FC = () => {
+export default function Header() {
   return (
-    <div className="w-full text-center py-5 mb-5 border-b">
-      <h1 className="text-[#4A90E2] font-bold text-2xl">أُمية</h1>
-    </div>
+    <header className="fixed top-0 left-0 right-0 h-20 bg-[#3B82F6] shadow-md z-10 flex items-center justify-center px-6">
+      <div className="flex flex-col items-center">
+        <Link href="/" className="text-white text-4xl font-bold">
+          أُمية
+        </Link>
+        <span className="text-white text-sm font-medium">Ummiyyah</span>
+      </div>
+    </header>
   );
-};
+}
