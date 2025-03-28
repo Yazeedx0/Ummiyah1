@@ -4,7 +4,6 @@ import { Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
-import { useEffect, useState, useId } from "react";
 
 const notoSansArabic = Noto_Sans_Arabic({
   subsets: ["arabic"],
@@ -34,16 +33,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Generate a unique ID for hydration stability
-  const bodyId = useId();
-  
   return (
     <html lang="ar" dir="rtl">
-      <body 
-        id={bodyId}
-        className={`${notoSansArabic.variable} ${tajawal.variable} ${poppins.variable} font-noto-sans`}
-        // Add the suppressHydrationWarning prop to ignore hydration mismatches
-        suppressHydrationWarning={true}
+      <body
+        className={cn(
+          notoSansArabic.variable,
+          tajawal.variable,
+          poppins.variable,
+          "font-noto-sans"
+        )}
+        suppressHydrationWarning
       >
         {children}
         <Toaster position="top-center" richColors />

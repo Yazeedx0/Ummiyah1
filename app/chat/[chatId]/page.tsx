@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import React from "react";
 import { PreviewMessage, ThinkingMessage } from "@/components/message";
 import { MultimodalInput } from "@/components/multimodal-input";
@@ -9,9 +9,12 @@ import ChatLayout from "@/components/chat-layout";
 import { Overview } from "@/components/overview";
 
 export default function ChatPage({ params }: { params: Promise<{ chatId: string }> }) {
-  const unwrappedParams = React.use(params);
-  const { chatId } = unwrappedParams;
-  
+  const [chatId, setChatId] = useState<string | null>(null);
+
+  useEffect(() => {
+    params.then((data) => setChatId(data.chatId)).catch(console.error);
+  }, [params]);
+
   const {
     messages,
     setMessages,
@@ -23,21 +26,22 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
     append,
   } = useChat({
     api: "/api/chat",
-    id: chatId,
+    id: chatId || "", // تأكد من عدم تمرير `undefined` في البداية
     initialMessages: [
       {
         id: "welcome",
         role: "assistant",
-        content: "مرحبًا! أنا أُمية، كيف يمكنني مساعدتك اليوم؟",
+        content: "مرحبًا! أنا أُمية، وأنا هنا لأساعدك في دراستك! هل لديك أي سؤال يمكنني مساعدتك في الإجابة عليه اليوم؟",
       }
-    ]
+    ],
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when new messages are added
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   return (
@@ -50,7 +54,7 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
             {messages.map((message) => (
               <PreviewMessage
                 key={message.id}
-                chatId={chatId}
+                chatId={chatId || ""}
                 message={message}
                 isLoading={false}
               />
@@ -62,7 +66,7 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
       </div>
       <div className="sticky bottom-0 w-full">
         <MultimodalInput
-          chatId={chatId}
+          chatId={chatId || ""}
           input={input}
           setInput={setInput}
           isLoading={isLoading}

@@ -7,9 +7,15 @@ import { Header } from "@/components/header";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
 import { useChat } from "ai/react";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Chat() {
   const chatId = "001";
+  // Track message sending status
+  const [sendingStatus, setSendingStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  // Track if thinking message is already shown
+  const [isThinkingShown, setIsThinkingShown] = useState(false);
 
   const {
     messages,
@@ -22,14 +28,51 @@ export function Chat() {
     stop,
   } = useChat({
     maxSteps: 4,
+    onResponse: () => {
+      // When we get a response, show success toast
+      setSendingStatus("success");
+      toast.success("تم إرسال الرسالة بنجاح!");
+      setTimeout(() => setSendingStatus("idle"), 2000);
+    },
     onError: (error) => {
+      setSendingStatus("error");
       if (error.message.includes("Too many requests")) {
         toast.error(
           "عذراً، أنت ترسل الكثير من الرسائل. يرجى المحاولة لاحقاً.",
         );
+      } else {
+        toast.error("فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى.");
       }
+      setTimeout(() => setSendingStatus("idle"), 2000);
     },
   });
+
+  // Update thinking message state based on loading state
+  useEffect(() => {
+    if (isLoading) {
+      setIsThinkingShown(true);
+    } else {
+      setIsThinkingShown(false);
+    }
+  }, [isLoading]);
+
+  // Custom submit handler to show sending status
+  const onSubmit = async (event?: React.FormEvent) => {
+    if (event) event.preventDefault();
+    if (isLoading) {
+      toast.error("يرجى الانتظار حتى ينتهي المساعد من الرد!");
+      return;
+    }
+    
+    setSendingStatus("sending");
+    try {
+      await handleSubmit(event);
+    } catch (error) {
+      setSendingStatus("error");
+      toast.error("فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى.");
+      setTimeout(() => setSendingStatus("idle"), 2000);
+    }
+  };
 
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
@@ -52,9 +95,14 @@ export function Chat() {
           />
         ))}
 
-        {isLoading &&
-          messages.length > 0 &&
-          messages[messages.length - 1].role === "user" && <ThinkingMessage />}
+        <AnimatePresence>
+          {isLoading &&
+            messages.length > 0 &&
+            messages[messages.length - 1].role === "user" && 
+            isThinkingShown && 
+            <ThinkingMessage />
+          }
+        </AnimatePresence>
 
         <div
           ref={messagesEndRef}
@@ -62,12 +110,26 @@ export function Chat() {
         />
       </div>
 
+      {/* Status indicator */}
+      <AnimatePresence>
+        {sendingStatus === "sending" && (
+          <motion.div 
+            className="bg-blue-500 text-white text-center py-1 text-sm"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 20, opacity: 0 }}
+          >
+            جاري إرسال الرسالة...
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <form className="flex w-full bg-[#F5F5F5] py-4 md:py-5 px-3 border-t sticky bottom-0 shadow-sm">
         <MultimodalInput
           chatId={chatId}
           input={input}
           setInput={setInput}
-          handleSubmit={handleSubmit}
+          handleSubmit={onSubmit}
           isLoading={isLoading}
           stop={stop}
           messages={messages}
