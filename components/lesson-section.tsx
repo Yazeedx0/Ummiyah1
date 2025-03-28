@@ -41,12 +41,12 @@ export function LessonSection() {
   };
   
   return (
-    <div className="h-full w-full p-5 overflow-y-auto">
+    <div className="h-full w-full p-5 overflow-y-auto overflow-x-hidden">
       <h2 className="text-2xl font-bold text-[#1E3A8A] mb-6 text-right">
         اختر الصف والوحدة والدرس
       </h2>
       
-      <div className="space-y-4">
+      <div className="space-y-4 max-w-full">
         <SelectionBar
           label="الصف"
           options={grades}
@@ -71,7 +71,7 @@ export function LessonSection() {
           description="اختر الدرس المحدد الذي تريد استعراضه"
         />
         
-        <div className="mt-6">
+        <div className="mt-6 w-full">
           <LessonContent
             grade={selectedGrade}
             unit={selectedUnit}

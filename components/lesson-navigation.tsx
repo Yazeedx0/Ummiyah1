@@ -113,6 +113,46 @@ export function LessonNavigation() {
     fetchNavigationData();
   }, []);
 
+  useEffect(() => {
+    // Add listener to close dropdown when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openDropdown) {
+        const currentDropdownRef = dropdownRefs.current[openDropdown];
+        if (currentDropdownRef && !currentDropdownRef.contains(event.target as Node)) {
+          setOpenDropdown(null);
+        }
+      }
+    };
+
+    // Check dropdown position and adjust if needed
+    const adjustDropdownPosition = () => {
+      if (openDropdown) {
+        const dropdownEl = document.querySelector(`[data-dropdown="${openDropdown}"]`) as HTMLElement;
+        if (dropdownEl) {
+          const rect = dropdownEl.getBoundingClientRect();
+          const viewportWidth = window.innerWidth;
+          
+          // If dropdown extends beyond right edge of viewport
+          if (rect.right > viewportWidth) {
+            dropdownEl.style.right = '0';
+            dropdownEl.style.left = 'auto';
+          }
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Adjust dropdown position when it opens
+    if (openDropdown) {
+      setTimeout(adjustDropdownPosition, 0);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openDropdown]);
+
   const getCurrentGrade = () => navigationData.find(g => g.id === selections.gradeId);
   const getCurrentSubject = () => getCurrentGrade()?.subjects.find(s => s.id === selections.subjectId);
   const getCurrentUnit = () => getCurrentSubject()?.units.find(u => u.id === selections.unitId);
@@ -139,41 +179,61 @@ export function LessonNavigation() {
     setOpenDropdown(null);
   };
 
-  const renderDropdown = (id: string, items: any[], selectedId: number, getItemLabel: (item: any) => string) => (
-    <div className="relative" ref={el => dropdownRefs.current[id] = el}>
-      <button
-        ref={el => buttonRefs.current[id] = el}
-        onClick={() => setOpenDropdown(openDropdown === id ? null : id)}
-        className="flex items-center gap-2 text-[#3B82F6] hover:text-[#1D4ED8] hover:bg-[#F1F5F9] px-3 py-2 rounded-md font-medium transition-all"
-        aria-expanded={openDropdown === id}
-      >
-        {id === 'lesson' ? 'الدرس' : getItemLabel(items.find(item => item.id === selectedId))}
-        <ChevronDownIcon 
-          size={16} 
-          className={cn(
-            "transition-transform duration-200",
-            openDropdown === id && "rotate-180"
-          )}
-        />
-      </button>
-      {openDropdown === id && (
-        <div className="absolute top-full right-0 mt-1 bg-white border border-[#E5E9F0] rounded-lg shadow-lg z-10 w-64 max-h-64 overflow-y-auto">
-          {items.map(item => (
-            <button
-              key={item.id}
-              className={cn(
-                "block w-full text-right px-4 py-3 hover:bg-[#F3F4F6] transition-colors",
-                selectedId === item.id && "bg-[#EBF5FF] font-medium text-[#3B82F6]"
-              )}
-              onClick={() => handleSelect(id, item.id)}
-            >
-              {getItemLabel(item)}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  const renderDropdown = (id: string, items: any[], selectedId: number, getItemLabel: (item: any) => string) => {
+    const selectedItem = items.find(item => item.id === selectedId);
+    const selectedLabel = selectedItem ? getItemLabel(selectedItem) : id === 'lesson' ? 'الدرس' : '';
+    
+    return (
+      <div className="relative" ref={el => dropdownRefs.current[id] = el}>
+        <button
+          ref={el => buttonRefs.current[id] = el}
+          onClick={() => setOpenDropdown(openDropdown === id ? null : id)}
+          className="flex items-center gap-2 text-[#3B82F6] hover:text-[#1D4ED8] hover:bg-[#F1F5F9] px-3 py-2 rounded-md font-medium transition-all"
+          aria-expanded={openDropdown === id}
+          title={selectedLabel}
+        >
+          <span className="truncate max-w-[120px]">
+            {selectedLabel}
+          </span>
+          <ChevronDownIcon 
+            size={16} 
+            className={cn(
+              "transition-transform duration-200 flex-shrink-0",
+              openDropdown === id && "rotate-180"
+            )}
+          />
+        </button>
+        {openDropdown === id && (
+          <div 
+            data-dropdown={id}
+            className="fixed mt-1 bg-white border border-[#E5E9F0] rounded-lg shadow-lg z-20 w-64 max-h-[300px] overflow-y-auto"
+            style={{
+              top: buttonRefs.current[id]?.getBoundingClientRect().bottom + window.scrollY + 'px',
+              right: Math.min(
+                window.innerWidth - (buttonRefs.current[id]?.getBoundingClientRect().left || 0) - (buttonRefs.current[id]?.offsetWidth || 0) + window.scrollX,
+                window.innerWidth - 280
+              ) + 'px'
+            }}
+          >
+            {items.map(item => (
+              <button
+                key={item.id}
+                className={cn(
+                  "block w-full text-right px-4 py-3 hover:bg-[#F3F4F6] transition-colors",
+                  selectedId === item.id && "bg-[#EBF5FF] font-medium text-[#3B82F6]"
+                )}
+                onClick={() => handleSelect(id, item.id)}
+              >
+                <div className="truncate" title={getItemLabel(item)}>
+                  {getItemLabel(item)}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const currentLesson = getCurrentLesson();
   
@@ -220,24 +280,24 @@ export function LessonNavigation() {
 
   return (
     <div className="h-full flex flex-col">
-      <nav className="border-b border-[#E5E9F0] bg-[#F8FAFC] px-6 py-4 flex justify-between flex-wrap gap-4">
+      <nav className="border-b border-[#E5E9F0] bg-[#F8FAFC] px-4 py-4 flex flex-wrap gap-3 justify-start">
         {renderDropdown('grade', navigationData, selections.gradeId, (item: any) => item.name)}
         {renderDropdown('subject', getCurrentGrade()?.subjects || [], selections.subjectId, (item: any) => item.name)}
         {renderDropdown('unit', getCurrentSubject()?.units || [], selections.unitId, (item: any) => item.name)}
         {renderDropdown('lesson', getCurrentUnit()?.lessons || [], selections.lessonId, (item: any) => item.title)}
       </nav>
 
-      <div className="px-6 py-4 border-b border-[#E5E9F0] bg-white">
-        <h2 className="text-xl font-bold text-[#1E3A8A]">
+      <div className="px-4 py-4 border-b border-[#E5E9F0] bg-white">
+        <h2 className="text-xl font-bold text-[#1E3A8A] truncate" title={getCurrentLesson()?.title || 'الدرس'}>
           {getCurrentLesson()?.title || 'الدرس'}
         </h2>
-        <p className="text-sm text-[#64748B] mt-1">
+        <p className="text-sm text-[#64748B] mt-1 truncate">
           {getCurrentGrade()?.name} / {getCurrentSubject()?.name} / {getCurrentUnit()?.name}
         </p>
       </div>
       
       <div className="border-b border-[#E5E9F0] px-6">
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-2 pt-2 overflow-x-auto pb-1">
           {tabs
             // Filter out content tab if no meaningful content exists
             .filter(tab => tab.id !== 'content' || hasContent)
@@ -254,7 +314,7 @@ export function LessonNavigation() {
                 >
                   <button
                     className={cn(
-                      "py-3 px-5 font-medium rounded-t-lg transition-colors flex items-center gap-2",
+                      "py-3 px-5 font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap",
                       selections.tab === tab.id 
                         ? "bg-[#3B82F6] text-white shadow-sm" 
                         : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#3B82F6]"
@@ -270,9 +330,9 @@ export function LessonNavigation() {
         </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-6 bg-white">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 bg-white">
         {selections.tab === 'content' && hasContent && (
-          <div className="prose max-w-none text-right bg-[#FAFAFA] p-5 rounded-lg border border-[#E5E9F0] shadow-sm">
+          <div className="prose max-w-full text-right bg-[#FAFAFA] p-5 rounded-lg border border-[#E5E9F0] shadow-sm overflow-x-hidden">
             <div className="flex justify-between items-center mb-4 pb-3 border-b border-[#E5E9F0]">
               <button 
                 onClick={() => {
@@ -292,7 +352,7 @@ export function LessonNavigation() {
               <h3 className="text-lg font-semibold text-[#1E3A8A]">محتوى الدرس</h3>
             </div>
             <div 
-              className="leading-relaxed text-[#334155] lesson-content" 
+              className="leading-relaxed text-[#334155] lesson-content break-words" 
               dir="rtl"
               dangerouslySetInnerHTML={{ __html: formattedContent }}
             />

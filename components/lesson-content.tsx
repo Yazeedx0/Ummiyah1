@@ -14,11 +14,11 @@ export function LessonContent({ grade, unit, lesson, className }: LessonContentP
   return (
     <div 
       className={cn(
-        "border border-[#BFDBFE] rounded-lg p-4 bg-white w-full max-h-[50vh] overflow-y-auto",
+        "border border-[#BFDBFE] rounded-lg p-4 bg-white w-full max-h-[50vh] overflow-y-auto overflow-x-hidden",
         className
       )}
     >
-      <div className="text-right text-[#1F2937] text-base leading-relaxed">
+      <div className="text-right text-[#1F2937] text-base leading-relaxed break-words">
         {content}
       </div>
     </div>

@@ -109,18 +109,18 @@ export function LessonContentFormatter({ lesson, unitName }: LessonContentFormat
   const groupedObjectives = groupObjectivesBySkill(objectives || []);
   
   return (
-    <div className="lesson-content text-right direction-rtl">
+    <div className="lesson-content text-right direction-rtl overflow-x-hidden w-full">
       
       {objectives && objectives.length > 0 ? (
-        <div className="mb-4">
+        <div className="mb-4 w-full">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🧠</span>
             <h3 className="text-xl font-bold text-[#1E3A8A]">أهداف التعلم:</h3>
           </div>
           
-          <div className="space-y-6 pr-2">
+          <div className="space-y-6 pr-2 max-w-full">
             {Object.entries(groupedObjectives).map(([skill, skillObjectives]) => (
-              <div key={skill} className="bg-[#F0F9FF] p-4 rounded-md border-r-4 border-[#3B82F6]">
+              <div key={skill} className="bg-[#F0F9FF] p-4 rounded-md border-r-4 border-[#3B82F6] break-words overflow-x-hidden">
                 <h4 className="font-bold text-[#1E40AF] mb-4 flex items-center gap-2">
                   <span>{getSkillIcon(skill)}</span>
                   <span>{skill}:</span>
