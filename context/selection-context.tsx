@@ -7,8 +7,8 @@ interface SelectionContextType {
   setSelectedText: (text: string) => void;
   selectionPosition: { x: number; y: number } | null;
   setSelectionPosition: (position: { x: number; y: number } | null) => void;
-  insertTextToInput: (text: string) => void;
-  registerInputSetter: (setter: (text: string) => void) => void;
+  insertTextToInput: (text: string, preserveMessageType?: boolean) => void;
+  registerInputSetter: (setter: (text: string, preserveMessageType?: boolean) => void) => void;
   clearSelection: () => void;
   selectionActive: boolean;
 }
@@ -34,15 +34,15 @@ export const SelectionProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [selectionActive, setSelectionActive] = useState(false);
   
   // Use ref instead of state to avoid rendering issues
-  const messageInputSetterRef = useRef<((text: string) => void) | null>(null);
+  const messageInputSetterRef = useRef<((text: string, preserveMessageType?: boolean) => void) | null>(null);
 
-  const insertTextToInput = (text: string) => {
+  const insertTextToInput = (text: string, preserveMessageType?: boolean) => {
     if (messageInputSetterRef.current) {
-      messageInputSetterRef.current(text);
+      messageInputSetterRef.current(text, preserveMessageType);
     }
   };
   
-  const registerInputSetter = (setter: (text: string) => void) => {
+  const registerInputSetter = (setter: (text: string, preserveMessageType?: boolean) => void) => {
     messageInputSetterRef.current = setter;
   };
   

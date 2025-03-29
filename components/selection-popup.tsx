@@ -1,8 +1,65 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSelection } from '@/context/selection-context';
+
+// Question mark icon component
+const QuestionIcon = ({ className = "" }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="16" 
+    height="16" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10"></circle>
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+  </svg>
+);
+
+// Copy icon component
+const CopyIcon = ({ className = "" }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="16" 
+    height="16" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+  </svg>
+);
+
+// Success check icon component
+const CheckIcon = ({ className = "" }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="16" 
+    height="16" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+);
 
 export function SelectionPopup() {
   const { 
@@ -14,6 +71,7 @@ export function SelectionPopup() {
   } = useSelection();
   
   const popupRef = useRef<HTMLDivElement>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
   
   // Handle click outside to keep selection visible
   useEffect(() => {
@@ -49,13 +107,23 @@ export function SelectionPopup() {
     return null;
   }
 
-  const handleAction = (actionType: string) => {
-    if (actionType === 'clear') {
-      clearSelection();
-    } else {
-      // Insert prompt with selected text
-      insertTextToInput(`${actionType} "${selectedText}"`);
-      clearSelection();
+  const handleAskAction = () => {
+    // Insert selected text as a question and preserve message type
+    insertTextToInput(`${selectedText}`, true);
+    clearSelection();
+  };
+  
+  const handleCopyAction = async () => {
+    try {
+      await navigator.clipboard.writeText(selectedText);
+      setCopySuccess(true);
+      
+      // Reset success state after 2 seconds
+      setTimeout(() => {
+        setCopySuccess(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
     }
   };
 
@@ -75,43 +143,32 @@ export function SelectionPopup() {
           exit={{ opacity: 0, y: 10 }}
           transition={{ duration: 0.2 }}
         >
+          {/* Switched positions: "نسخ" button moved to first position */}
           <button
-            onClick={() => handleAction('اشرح')}
-            className="text-xs bg-[#3B82F6] hover:bg-[#2563EB] text-white px-3 py-1.5 rounded-md transition-colors"
+            onClick={handleCopyAction}
+            className="text-xs bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-1.5 rounded-md transition-colors flex items-center gap-1.5"
+            aria-label="نسخ النص المحدد"
           >
-            اشرح
+            {copySuccess ? (
+              <>
+                <CheckIcon className="mr-1" />
+                تم النسخ
+              </>
+            ) : (
+              <>
+                <CopyIcon className="mr-1" />
+                نسخ
+              </>
+            )}
           </button>
           
+          {/* Moved "اسأل" button to second position */}
           <button
-            onClick={() => handleAction('لخص')}
-            className="text-xs bg-[#10B981] hover:bg-[#059669] text-white px-3 py-1.5 rounded-md transition-colors"
+            onClick={handleAskAction}
+            className="text-xs bg-[#8B5CF6] hover:bg-[#7C3AED] text-white px-4 py-1.5 rounded-md transition-colors flex items-center gap-1.5"
           >
-            لخص
-          </button>
-          
-          <button
-            onClick={() => handleAction('ترجم')}
-            className="text-xs bg-[#8B5CF6] hover:bg-[#7C3AED] text-white px-3 py-1.5 rounded-md transition-colors"
-          >
-            ترجم
-          </button>
-          
-          <button
-            onClick={() => {
-              insertTextToInput(selectedText);
-              clearSelection();
-            }}
-            className="text-xs bg-[#F59E0B] hover:bg-[#D97706] text-white px-3 py-1.5 rounded-md transition-colors"
-          >
-            اقتبس
-          </button>
-          
-          <button
-            onClick={() => handleAction('clear')}
-            className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1.5 rounded-md transition-colors"
-            aria-label="إلغاء التحديد"
-          >
-            
+            <QuestionIcon className="mr-1" />
+            اسأل
           </button>
         </motion.div>
       )}

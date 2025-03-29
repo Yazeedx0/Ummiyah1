@@ -123,12 +123,37 @@ export function MultimodalInput({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
+  const [currentMessageType, setCurrentMessageType] = useState("");
   const { registerInputSetter } = useSelection();
 
   // Register input setter with selection context
   useEffect(() => {
-    registerInputSetter(setInput);
-  }, [registerInputSetter, setInput]);
+    registerInputSetter((text, preserveMessageType = false) => {
+      if (preserveMessageType && currentMessageType) {
+        // Keep the message type and append the selected text
+        setInput(currentMessageType + text);
+      } else {
+        setInput(text);
+      }
+    });
+  }, [registerInputSetter, setInput, currentMessageType]);
+
+  // Track the current message type when input changes
+  useEffect(() => {
+    if (input) {
+      // Check if input starts with any of our predefined message types
+      for (const prompt of presetPrompts) {
+        if (input.startsWith(prompt.text)) {
+          setCurrentMessageType(prompt.text);
+          return;
+        }
+      }
+      // If no match, reset current message type
+      setCurrentMessageType("");
+    } else {
+      setCurrentMessageType("");
+    }
+  }, [input]);
 
   // Close prompt menu when clicking outside
   useEffect(() => {
@@ -209,6 +234,7 @@ export function MultimodalInput({
 
   const insertPromptTemplate = (promptText: string) => {
     setInput(promptText);
+    setCurrentMessageType(promptText);
     setShowPromptMenu(false);
     
     if (textareaRef.current) {

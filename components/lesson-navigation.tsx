@@ -398,6 +398,7 @@ export function LessonNavigation() {
         {selections.tab === 'content' && hasContent && (
           <div className="prose max-w-full text-right bg-[#FAFAFA] p-5 rounded-lg border border-[#E5E9F0] shadow-sm overflow-x-hidden">
             <div className="flex justify-between items-center mb-4 pb-3 border-b border-[#E5E9F0]">
+              <h3 className="text-lg font-semibold text-[#1E3A8A]">محتوى الدرس</h3>
               <button 
                 onClick={() => {
                   if (currentLesson?.content) {
@@ -413,7 +414,6 @@ export function LessonNavigation() {
                 </svg>
                 نسخ
               </button>
-              <h3 className="text-lg font-semibold text-[#1E3A8A]">محتوى الدرس</h3>
             </div>
             <div 
               className="leading-relaxed text-[#334155] lesson-content break-words selection-persist" 
