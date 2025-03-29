@@ -212,11 +212,8 @@ export function LessonNavigation() {
             data-dropdown={id}
             className="fixed mt-1 bg-white border border-[#E5E9F0] rounded-lg shadow-lg z-20 w-64 max-h-[300px] overflow-y-auto"
             style={{
-              top: buttonRefs.current[id]?.getBoundingClientRect().bottom + window.scrollY + 'px',
-              right: Math.min(
-                window.innerWidth - (buttonRefs.current[id]?.getBoundingClientRect().left || 0) - (buttonRefs.current[id]?.offsetWidth || 0) + window.scrollX,
-                window.innerWidth - 280
-              ) + 'px'
+              top: (buttonRefs.current[id]?.getBoundingClientRect().bottom || 0) + window.scrollY + 'px',
+              left: (buttonRefs.current[id]?.getBoundingClientRect().left || 0) + window.scrollX + 'px'
             }}
           >
             {items.map(item => (
