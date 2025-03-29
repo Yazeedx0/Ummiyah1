@@ -7,6 +7,7 @@ import { Tooltip } from "./ui/tooltip";
 import { Grade, Subject, Unit, Lesson } from "@/types/navigation";
 import { LessonContentFormatter } from "./lesson-content-formatter";
 import { formatContent } from "@/lib/content-formatter";
+import { useSelection } from '@/context/selection-context';
 
 const tabs = [
   { 
@@ -59,6 +60,9 @@ export function LessonNavigation() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+
+  // Add selection context
+  const { setSelectedText, setSelectionPosition } = useSelection();
 
   useEffect(() => {
     const fetchNavigationData = async () => {
@@ -261,6 +265,55 @@ export function LessonNavigation() {
       setSelections(prev => ({ ...prev, tab: 'objectives' }));
     }
   }, [selections.lessonId, hasContent, selections.tab]);
+
+  // تحسين معالج تحديد النص
+  useEffect(() => {
+    let selectionTimeout: NodeJS.Timeout;
+    
+    const handleSelection = () => {
+      const selection = window.getSelection();
+      
+      if (selection && !selection.isCollapsed && selection.toString().trim() !== '') {
+        // إلغاء المؤقت السابق إن وجد
+        clearTimeout(selectionTimeout);
+        
+        // تأخير لتجنب ظهور النافذة المنبثقة واختفائها بسرعة
+        selectionTimeout = setTimeout(() => {
+          // Get selected text
+          const text = selection.toString().trim();
+          
+          // Only process selections from the lesson content
+          const lessonContentElement = document.querySelector('.lesson-content');
+          if (lessonContentElement) {
+            const range = selection.getRangeAt(0);
+            
+            // Check if the selection is within the lesson content
+            if (lessonContentElement.contains(range.commonAncestorContainer)) {
+              setSelectedText(text);
+              
+              // Calculate position for popup
+              const selectionRect = range.getBoundingClientRect();
+              
+              // Position the popup above the selection
+              const x = selectionRect.x + (selectionRect.width / 2); // Center horizontally
+              const y = selectionRect.y - 5; // Position above selection with a small gap
+              
+              setSelectionPosition({ x, y });
+            }
+          }
+        }, 100); // تأخير بسيط لتحسين التجربة
+      }
+    };
+    
+    document.addEventListener('mouseup', handleSelection);
+    document.addEventListener('touchend', handleSelection);
+    
+    return () => {
+      document.removeEventListener('mouseup', handleSelection);
+      document.removeEventListener('touchend', handleSelection);
+      clearTimeout(selectionTimeout);
+    };
+  }, [setSelectedText, setSelectionPosition]);
 
   if (loading) {
     return (

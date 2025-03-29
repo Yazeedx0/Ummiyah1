@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 
 import { cn, sanitizeUIMessages } from "@/lib/utils";
+import { useSelection } from "@/context/selection-context";
 
 import { StopIcon, ChevronDownIcon, PenIcon, SummarizeIcon, ThumbUpIcon, CheckedSquare, DeltaIcon, LightbulbIcon, SendIcon } from "./icons";
 import { Button } from "./ui/button";
@@ -97,7 +98,7 @@ export function MultimodalInput({
   className,
 }: {
   chatId: string;
-  input: string;
+  input: string | null | undefined;
   setInput: (value: string) => void;
   isLoading: boolean;
   stop: () => void;
@@ -122,7 +123,13 @@ export function MultimodalInput({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
-  
+  const { registerInputSetter } = useSelection();
+
+  // Register input setter with selection context
+  useEffect(() => {
+    registerInputSetter(setInput);
+  }, [registerInputSetter, setInput]);
+
   // Close prompt menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -151,9 +158,14 @@ export function MultimodalInput({
   const adjustHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight + 2, 120)}px`;
+      const maxHeight = 180; // زيادة الارتفاع الأقصى من 120 إلى 180
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight + 2, maxHeight)}px`;
     }
   };
+
+  useEffect(() => {
+    adjustHeight();
+  }, [input]);
 
   const [localStorageInput, setLocalStorageInput] = useLocalStorage(
     "input",
@@ -173,7 +185,7 @@ export function MultimodalInput({
   }, []);
 
   useEffect(() => {
-    setLocalStorageInput(input);
+    setLocalStorageInput(input || "");
   }, [input, setLocalStorageInput]);
 
   // Update suggestions as user types
@@ -260,14 +272,15 @@ export function MultimodalInput({
         <Textarea
           ref={textareaRef}
           placeholder="اكتب رسالتك..."
-          value={input}
+          value={input || ''} // Add a fallback for null/undefined input
           onChange={handleInput}
           onKeyDown={handleKeyDown}
           className={cn(
-            "min-h-[40px] max-h-[120px] overflow-hidden resize-none rounded-2xl text-base bg-[#F8FAFC] border-[#E5E9F0] flex-1 placeholder:text-right dir-rtl py-3 px-4 focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-all",
+            "min-h-[60px] max-h-[180px] overflow-y-auto resize-none rounded-2xl text-base bg-[#F8FAFC] border-[#E5E9F0] flex-1 placeholder:text-right dir-rtl py-3 px-4 focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-all",
+            "whitespace-pre-wrap break-words", // تحسين عرض النص
             className,
           )}
-          rows={1}
+          rows={2} // زيادة عدد الصفوف الافتراضي من 1 إلى 2
           autoFocus
           aria-label="مربع إدخال الرسالة"
         />
@@ -320,7 +333,7 @@ export function MultimodalInput({
               event.preventDefault();
               submitForm();
             }}
-            disabled={input.length === 0}
+            disabled={!input || input.length === 0} // Add null/undefined check
             aria-label="إرسال الرسالة"
           >
             <span className="ml-2">إرسال</span>

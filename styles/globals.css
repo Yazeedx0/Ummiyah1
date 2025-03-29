@@ -6,8 +6,12 @@
 }
 
 .lesson-content p {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   line-height: 1.7;
+}
+
+.lesson-content div {
+  margin-bottom: 1.5rem;
 }
 
 .lesson-content ul {
@@ -79,4 +83,30 @@
   margin: 1rem 0;
   background-color: #F0F9FF;
   border-radius: 0.25rem;
+}
+
+/* Add styles for text selection */
+.lesson-content ::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: #1E40AF;
+}
+
+.lesson-content ::-moz-selection {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: #1E40AF;
+}
+
+/* Make sure the selection popup doesn't get obscured */
+.selection-popup {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  z-index: 1000;
+}
+
+/* تحسين تصميم مربع النص */
+textarea.resize-none {
+  line-height: 1.5;
+  text-align: right;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }

@@ -55,7 +55,7 @@ export const PreviewMessage = ({
           "flex gap-4 py-5 px-6 rounded-2xl shadow-sm transition-all duration-300 hover:shadow-md",
           isAssistant
             ? "bg-[#EEF4FF] w-full md:w-[88%] border-l-4 border-[#4D79FF]"
-            : "bg-[#F0FAF0] border border-[#D1FAE5] w-full md:w-[88%] mr-auto flex-row-reverse border-r-4 border-[#33B37B]"
+            : "bg-[#F0FAF0] border w-full md:w-[88%] mr-auto flex-row-reverse border-r-4 border-[#33B37B]"
         )}
       >
         <div
@@ -66,7 +66,10 @@ export const PreviewMessage = ({
               : "bg-gradient-to-br from-[#33B37B] to-[#7BDCB5] ring-[#D1FAE5]"
           )}
         >
-          {isAssistant ? <SparklesIcon size={20} className="text-white" /> : <UserIcon size={20} className="text-white" />}
+          {isAssistant ? 
+            <SparklesIcon className="text-white w-5 h-5" /> : 
+            <UserIcon className="text-white w-5 h-5" />
+          }
         </div>
 
         <div className="flex flex-col gap-2 w-full">
@@ -77,7 +80,7 @@ export const PreviewMessage = ({
                 className="text-gray-400 hover:text-yellow-400 transition-colors"
                 aria-label="تمييز الرسالة"
               >
-                <ThumbUpIcon size={16} className={isStarred ? "text-yellow-400" : ""} />
+                <ThumbUpIcon className={`w-4 h-4 ${isStarred ? "text-yellow-400" : ""}`} />
               </button>
             </Tooltip>
 
@@ -142,7 +145,7 @@ export const ThinkingMessage = () => (
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
         >
-          <SparklesIcon size={20} className="text-white" />
+          <SparklesIcon className="text-white w-5 h-5" />
         </motion.div>
       </div>
 

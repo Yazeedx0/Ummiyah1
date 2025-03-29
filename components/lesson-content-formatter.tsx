@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Lesson, Objective } from '@/types/navigation';
+import { useSelection } from '@/context/selection-context';
 
 // Icons for different types of objectives
 const OBJECTIVE_ICONS: Record<string, string> = {
@@ -101,6 +102,46 @@ const formatObjectiveText = (text: string): JSX.Element[] => {
 };
 
 export function LessonContentFormatter({ lesson, unitName }: LessonContentFormatterProps) {
+  const { setSelectedText, setSelectionPosition } = useSelection();
+  
+  // Add event listener for text selection
+  useEffect(() => {
+    const handleSelection = (e: MouseEvent) => {
+      const selection = window.getSelection();
+      
+      if (selection && !selection.isCollapsed && selection.toString().trim() !== '') {
+        // Get selected text
+        const text = selection.toString().trim();
+        
+        // Check if the selection is within this component
+        const lessonContentElement = document.querySelector('.lesson-content');
+        if (lessonContentElement) {
+          const range = selection.getRangeAt(0);
+          
+          // Check if the selection is within the lesson content
+          if (lessonContentElement.contains(range.commonAncestorContainer)) {
+            setSelectedText(text);
+            
+            // Calculate position for popup
+            const selectionRect = range.getBoundingClientRect();
+            
+            // Position the popup above the selection
+            const x = selectionRect.x + (selectionRect.width / 2) - 30; // Center horizontally and offset
+            const y = selectionRect.y - 10; // Position above selection
+            
+            setSelectionPosition({ x, y });
+          }
+        }
+      }
+    };
+    
+    document.addEventListener('mouseup', handleSelection);
+    
+    return () => {
+      document.removeEventListener('mouseup', handleSelection);
+    };
+  }, [setSelectedText, setSelectionPosition]);
+
   if (!lesson) return null;
   
   const { objectives } = lesson;
