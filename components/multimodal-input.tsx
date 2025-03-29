@@ -15,12 +15,34 @@ import { useLocalStorage, useWindowSize } from "usehooks-ts";
 
 import { cn, sanitizeUIMessages } from "@/lib/utils";
 import { useSelection } from "@/context/selection-context";
+import { useSpeechRecognition } from "./ui/useSpeechRecognition";
 
 import { StopIcon, ChevronDownIcon, PenIcon, SummarizeIcon, ThumbUpIcon, CheckedSquare, DeltaIcon, LightbulbIcon, SendIcon } from "./icons";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Tooltip } from "./ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
+
+// Microphone icon component
+const MicIcon = ({ className = "", size = 18 }: { className?: string, size?: number }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+    <line x1="12" y1="19" x2="12" y2="23"></line>
+    <line x1="8" y1="23" x2="16" y2="23"></line>
+  </svg>
+);
 
 // Define preset prompts with icons, text and enhanced descriptions in educational order
 const presetPrompts = [
@@ -125,6 +147,74 @@ export function MultimodalInput({
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
   const [currentMessageType, setCurrentMessageType] = useState("");
   const { registerInputSetter } = useSelection();
+
+  // Speech recognition integration
+  const [isSpeechEnabled, setIsSpeechEnabled] = useState(false);
+  const { 
+    isListening, 
+    transcript, 
+    startListening, 
+    stopListening, 
+    isSupported 
+  } = useSpeechRecognition({
+    language: 'ar-SA',
+    onFinalTranscript: (finalTranscript) => {
+      if (finalTranscript && !isLoading) {
+        // When speech recognition produces a final transcript, update the input
+        // and submit it automatically
+        const finalText = currentMessageType + finalTranscript;
+        setInput(finalText);
+        
+        // Use a small delay to ensure the UI updates before submitting
+        setTimeout(() => {
+          handleSubmit(undefined, {});
+          setLocalStorageInput("");
+          setShowSuggestions(false);
+        }, 200);
+      }
+    }
+  });
+
+  // Update input while listening for better UX
+  useEffect(() => {
+    if (isListening && transcript) {
+      setInput(currentMessageType + transcript);
+      adjustHeight();
+    }
+  }, [transcript, isListening, currentMessageType]);
+
+  // Toggle speech recognition
+  const toggleSpeechRecognition = () => {
+    if (isLoading) {
+      toast.error("يرجى الانتظار حتى ينتهي المساعد من الرد!");
+      return;
+    }
+
+    if (!isSupported) {
+      toast.error("التعرف على الكلام غير مدعوم في هذا المتصفح!");
+      return;
+    }
+
+    if (isListening) {
+      stopListening();
+      setIsSpeechEnabled(false);
+      
+      // إضافة رسالة توضيحية للتحقق من الأداء
+      console.log("تم محاولة إيقاف الاستماع");
+      
+      // إضافة تأخير بسيط للتأكد من التحديث
+      setTimeout(() => {
+        if (isListening) {
+          console.log("فشل إيقاف الاستماع، محاولة مرة أخرى");
+          stopListening();
+        }
+      }, 300);
+    } else {
+      startListening();
+      setIsSpeechEnabled(true);
+      setShowPromptMenu(false);
+    }
+  };
 
   // Register input setter with selection context
   useEffect(() => {
@@ -286,30 +376,45 @@ export function MultimodalInput({
     handleSubmit(undefined, {});
     setLocalStorageInput("");
     setShowSuggestions(false);
+    setIsSpeechEnabled(false);
+    stopListening();
 
     if (width && width > 768) {
       textareaRef.current?.focus();
     }
-  }, [handleSubmit, setLocalStorageInput, width]);
+  }, [handleSubmit, setLocalStorageInput, width, stopListening]);
 
   return (
     <div className="flex items-center w-full p-4 border-t border-[#E5E9F0] bg-white">
       <div className="relative flex-1">
         <Textarea
           ref={textareaRef}
-          placeholder="اكتب رسالتك..."
+          placeholder={isListening ? "جاري الاستماع..." : "اكتب رسالتك..."}
           value={input || ''} // Add a fallback for null/undefined input
           onChange={handleInput}
           onKeyDown={handleKeyDown}
           className={cn(
             "min-h-[60px] max-h-[180px] overflow-y-auto resize-none rounded-2xl text-base bg-[#F8FAFC] border-[#E5E9F0] flex-1 placeholder:text-right dir-rtl py-3 px-4 focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-all",
             "whitespace-pre-wrap break-words", // تحسين عرض النص
+            isListening && "bg-[#F0F9FF] border-[#BFDBFE]",
             className,
           )}
           rows={2} // زيادة عدد الصفوف الافتراضي من 1 إلى 2
           autoFocus
           aria-label="مربع إدخال الرسالة"
+          disabled={isListening} // Disable typing while listening
         />
+        
+        {/* Live speech indicator */}
+        {isListening && (
+          <div className="absolute left-3 top-3 flex items-center">
+            <div className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#EF4444] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-[#EF4444]"></span>
+            </div>
+            <span className="text-xs text-[#EF4444] mr-2">جاري الاستماع...</span>
+          </div>
+        )}
         
         {/* Auto-suggestions dropdown */}
         <AnimatePresence>
@@ -359,12 +464,34 @@ export function MultimodalInput({
               event.preventDefault();
               submitForm();
             }}
-            disabled={!input || input.length === 0} // Add null/undefined check
+            disabled={(!input || input.length === 0) && !isListening} // Allow submitting when listening
             aria-label="إرسال الرسالة"
           >
             <span className="ml-2">إرسال</span>
             <SendIcon size={16} />
           </Button>
+        )}
+        
+        {/* Speech Recognition Button */}
+        {isSupported && (
+          <Tooltip content={isListening ? "إيقاف الاستماع" : "التحدث بالرسالة"} position="top">
+            <Button
+              className={cn(
+                "rounded-full h-10 w-10 min-w-[40px] p-0 shrink-0 shadow-sm transition-all",
+                isListening 
+                  ? "bg-[#EF4444] text-white animate-pulse" 
+                  : "bg-white border-2 border-[#E5E9F0] text-[#64748B] hover:bg-[#F3F4F6]"
+              )}
+              onClick={(event) => {
+                event.preventDefault();
+                toggleSpeechRecognition();
+              }}
+              aria-pressed={isListening}
+              aria-label={isListening ? "إيقاف الاستماع" : "بدء الاستماع"}
+            >
+              <MicIcon size={18} />
+            </Button>
+          </Tooltip>
         )}
         
         {/* Child-friendly Prompt Templates Button - Improved */}
@@ -378,6 +505,7 @@ export function MultimodalInput({
             aria-expanded={showPromptMenu}
             aria-haspopup="true"
             aria-label="قوالب الرسائل"
+            disabled={isListening} // Disable while listening
           >
             <span className="ml-1">أفكار للرسائل</span>
             <ChevronDownIcon size={16} className={cn("transition-transform", showPromptMenu && "rotate-180")} />
