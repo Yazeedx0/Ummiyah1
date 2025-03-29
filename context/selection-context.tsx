@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useState, useContext, ReactNode, useRef } from 'react';
 
 interface SelectionContextType {
@@ -7,6 +9,8 @@ interface SelectionContextType {
   setSelectionPosition: (position: { x: number; y: number } | null) => void;
   insertTextToInput: (text: string) => void;
   registerInputSetter: (setter: (text: string) => void) => void;
+  clearSelection: () => void;
+  selectionActive: boolean;
 }
 
 const defaultContext: SelectionContextType = {
@@ -16,6 +20,8 @@ const defaultContext: SelectionContextType = {
   setSelectionPosition: () => {},
   insertTextToInput: () => {},
   registerInputSetter: () => {},
+  clearSelection: () => {},
+  selectionActive: false,
 };
 
 const SelectionContext = createContext<SelectionContextType>(defaultContext);
@@ -25,6 +31,7 @@ export const useSelection = () => useContext(SelectionContext);
 export const SelectionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [selectedText, setSelectedText] = useState<string>('');
   const [selectionPosition, setSelectionPosition] = useState<{ x: number; y: number } | null>(null);
+  const [selectionActive, setSelectionActive] = useState(false);
   
   // Use ref instead of state to avoid rendering issues
   const messageInputSetterRef = useRef<((text: string) => void) | null>(null);
@@ -38,16 +45,31 @@ export const SelectionProvider: React.FC<{ children: ReactNode }> = ({ children 
   const registerInputSetter = (setter: (text: string) => void) => {
     messageInputSetterRef.current = setter;
   };
+  
+  // Set text selection and mark as active
+  const setSelectedTextWithActive = (text: string) => {
+    setSelectedText(text);
+    setSelectionActive(!!text);
+  };
+  
+  // Clear selection state
+  const clearSelection = () => {
+    setSelectedText('');
+    setSelectionPosition(null);
+    setSelectionActive(false);
+  };
 
   return (
     <SelectionContext.Provider
       value={{
         selectedText,
-        setSelectedText,
+        setSelectedText: setSelectedTextWithActive,
         selectionPosition,
         setSelectionPosition,
         insertTextToInput,
         registerInputSetter,
+        clearSelection,
+        selectionActive,
       }}
     >
       {children}

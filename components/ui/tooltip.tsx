@@ -1,148 +1,131 @@
 "use client";
 
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { cn } from "@/lib/utils";
 
 interface TooltipProps {
-  content: string;
-  description?: string; // Added description for educational context
   children: React.ReactNode;
-  position?: 'top' | 'right' | 'bottom' | 'left';
+  content: string;
+  description?: string;
+  position?: 'top' | 'bottom' | 'left' | 'right' | 'bottom-start';
+  isRtl?: boolean;
+  color?: 'blue' | 'gray';
   className?: string;
-  contentClassName?: string; // Added for custom styling of tooltip content
-  isHighlighted?: boolean; // Added for highlighting important educational actions
-  isRtl?: boolean; // Added better RTL support
-  color?: 'blue' | 'green' | 'yellow' | 'purple' | 'default'; // Child-friendly color options
-  width?: 'auto' | 'sm' | 'md' | 'lg'; // Added width control
 }
 
-export const Tooltip = ({ 
-  content, 
+export const Tooltip = ({
+  children,
+  content,
   description,
-  children, 
   position = 'top',
-  className,
-  contentClassName,
-  isHighlighted = false,
   isRtl = false,
-  color = 'default',
-  width = 'auto'
+  color = 'gray',
+  className
 }: TooltipProps) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Child-friendly color palette - Enhanced with brighter colors
-  const colorClasses = {
-    default: "bg-gray-800 text-white",
-    blue: "bg-[#60A5FA] text-white",
-    green: "bg-[#34D399] text-white",
-    yellow: "bg-[#FBBF24] text-gray-800",
-    purple: "bg-[#A78BFA] text-white"
-  };
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
-  const widthClasses = {
-    auto: "max-w-xs",
-    sm: "w-48",
-    md: "w-64",
-    lg: "w-80"
-  };
-
-  const selectedColorClass = colorClasses[color];
-  
-  // Improved positioning with fixed offsets for better alignment
-  const positionClasses = {
-    top: "bottom-full mb-3",
-    right: "left-full ml-3",
-    bottom: "top-full mt-3",
-    left: "right-full mr-3"
-  };
-
-  // Handle RTL-specific positioning and horizontal alignment separately
-  const alignmentClasses = {
-    top: isRtl ? "right-0" : "left-0",
-    right: "top-0",
-    bottom: isRtl ? "right-0" : "left-0",
-    left: "top-0"
-  };
-
-  // Arrow positioning classes with fixed offsets
-  const arrowPositionClasses = {
-    top: {
-      position: "bottom-0 -mb-1.5",
-      alignment: isRtl ? "right-5" : "left-5"
-    },
-    right: {
-      position: "left-0 -ml-1.5",
-      alignment: "top-3"
-    },
-    bottom: {
-      position: "top-0 -mt-1.5",
-      alignment: isRtl ? "right-5" : "left-5"
-    },
-    left: {
-      position: "right-0 -mr-1.5",
-      alignment: "top-3"
+  const updatePosition = () => {
+    if (!triggerRef.current || !tooltipRef.current) return;
+    
+    const triggerRect = triggerRef.current.getBoundingClientRect();
+    const tooltipRect = tooltipRef.current.getBoundingClientRect();
+    
+    let x = 0;
+    let y = 0;
+    
+    switch (position) {
+      case 'top':
+        x = triggerRect.left + window.scrollX + (triggerRect.width / 2) - (tooltipRect.width / 2);
+        y = triggerRect.top + window.scrollY - tooltipRect.height - 10;
+        break;
+      case 'bottom':
+        x = triggerRect.left + window.scrollX + (triggerRect.width / 2) - (tooltipRect.width / 2);
+        y = triggerRect.bottom + window.scrollY + 10;
+        break;
+      case 'bottom-start':
+        x = isRtl 
+            ? triggerRect.right + window.scrollX - tooltipRect.width 
+            : triggerRect.left + window.scrollX;
+        y = triggerRect.bottom + window.scrollY + 10;
+        break;
+      case 'left':
+        x = triggerRect.left + window.scrollX - tooltipRect.width - 10;
+        y = triggerRect.top + window.scrollY + (triggerRect.height / 2) - (tooltipRect.height / 2);
+        break;
+      case 'right':
+        x = triggerRect.right + window.scrollX + 10;
+        y = triggerRect.top + window.scrollY + (triggerRect.height / 2) - (tooltipRect.height / 2);
+        break;
     }
+    
+    // Prevent tooltip from going off-screen
+    const rightOverflow = x + tooltipRect.width - window.innerWidth;
+    if (rightOverflow > 0) x -= rightOverflow + 10;
+    if (x < 10) x = 10;
+    
+    setCoords({ x, y });
   };
 
-  // Handle RTL swapping for left/right positions
-  const adjustedPosition = isRtl && (position === 'left' || position === 'right') 
-    ? (position === 'left' ? 'right' : 'left') 
-    : position;
+  useEffect(() => {
+    if (isVisible) {
+      requestAnimationFrame(updatePosition);
+      window.addEventListener('resize', updatePosition);
+      window.addEventListener('scroll', updatePosition);
+    }
+    
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition);
+    };
+  }, [isVisible]);
+
+  const showTooltip = () => setIsVisible(true);
+  const hideTooltip = () => setIsVisible(false);
+
+  const tooltipClasses = cn(
+    "fixed px-3 py-2 rounded-md shadow-md z-50 max-w-xs transition-opacity duration-200",
+    isRtl ? "text-right" : "text-left",
+    isVisible ? "opacity-100" : "opacity-0 pointer-events-none",
+    color === 'blue' ? "bg-[#3B82F6] text-white" : "bg-gray-800 text-white",
+    className
+  );
 
   return (
-    <div 
-      className="relative inline-block"
-      onMouseEnter={() => setIsVisible(true)}
-      onMouseLeave={() => setIsVisible(false)}
-      onFocus={() => setIsVisible(true)}
-      onBlur={() => setIsVisible(false)}
+    <div
+      className="inline-block"
+      ref={triggerRef}
+      onMouseEnter={showTooltip}
+      onMouseLeave={hideTooltip}
+      onFocus={showTooltip}
+      onBlur={hideTooltip}
     >
       {children}
-      
-      {isVisible && (
-        <div 
-          className={cn(
-            "absolute z-50 px-4 py-3 text-base rounded-xl shadow-lg animate-fadeIn",
-            selectedColorClass,
-            positionClasses[adjustedPosition],
-            alignmentClasses[adjustedPosition],
-            widthClasses[width],
-            isHighlighted && "ring-3 ring-yellow-300 ring-offset-2",
-            isRtl && "text-right",
-            contentClassName,
-            className
-          )}
-          role="tooltip"
-          dir={isRtl ? "rtl" : "ltr"}
+      {isMounted && createPortal(
+        <div
+          ref={tooltipRef}
+          className={tooltipClasses}
           style={{
-            animationDuration: '0.2s',
-            animationFillMode: 'both'
+            left: coords.x,
+            top: coords.y
           }}
+          dir={isRtl ? "rtl" : "ltr"}
         >
           <div className="font-medium">{content}</div>
-          
           {description && (
-            <div className={cn(
-              "text-sm mt-1.5 font-normal", 
-              color === 'yellow' ? "text-gray-700" : "text-white/90"
-            )}>
-              {description}
-            </div>
+            <div className="text-xs mt-1 opacity-90">{description}</div>
           )}
-          
-          <div 
-            className={cn(
-              "absolute w-3 h-3 transform rotate-45",
-              color === 'default' && "bg-gray-800",
-              color === 'blue' && "bg-[#60A5FA]",
-              color === 'green' && "bg-[#34D399]",
-              color === 'yellow' && "bg-[#FBBF24]",
-              color === 'purple' && "bg-[#A78BFA]",
-              arrowPositionClasses[adjustedPosition].position,
-              arrowPositionClasses[adjustedPosition].alignment
-            )}
-          />
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

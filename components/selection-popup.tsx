@@ -1,98 +1,120 @@
-import React, { useEffect, useRef } from 'react';
+"use client";
+
+import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSelection } from '@/context/selection-context';
-import { cn } from '@/lib/utils';
 
-export const SelectionPopup: React.FC = () => {
+export function SelectionPopup() {
   const { 
     selectedText, 
-    setSelectedText, 
     selectionPosition, 
-    setSelectionPosition,
-    insertTextToInput 
+    selectionActive, 
+    insertTextToInput, 
+    clearSelection 
   } = useSelection();
   
   const popupRef = useRef<HTMLDivElement>(null);
-
-  // تعديل حدث النقر خارج النافذة المنبثقة لتجنب الاختفاء السريع
+  
+  // Handle click outside to keep selection visible
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // تأكد من أن النقر لم يكن على النص المحدد نفسه
-      const selection = window.getSelection();
+      // Don't clear if clicking on the popup itself
+      if (popupRef.current && popupRef.current.contains(event.target as Node)) {
+        return;
+      }
       
-      // تجاهل النقر إذا كان على زر "اسأل" أو إذا كان ما زال هناك نص محدد
-      if (
-        popupRef.current && 
-        !popupRef.current.contains(event.target as Node) && 
-        !(selection && !selection.isCollapsed)
-      ) {
-        // تأخير إزالة النافذة المنبثقة للتأكد من أنها لا تختفي عند النقر على النص المحدد
-        setTimeout(() => {
-          // تحقق مرة أخرى قبل الإزالة
-          const newSelection = window.getSelection();
-          if (!(newSelection && !newSelection.isCollapsed)) {
-            setSelectionPosition(null);
-            setSelectedText('');
-          }
-        }, 200);
+      // Only clear selection if clicking on non-text elements
+      const clickedElement = event.target as HTMLElement;
+      const isClickingTextContainer = 
+        clickedElement.classList.contains('lesson-content') ||
+        clickedElement.closest('.lesson-content') !== null;
+      
+      // Keep selection if clicking on the content container
+      if (!isClickingTextContainer) {
+        clearSelection();
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [setSelectionPosition, setSelectedText]);
-
-  const handleAskClick = () => {
-    // Format the text with a question prompt
-    const formattedText = `أريد السؤال عن: "${selectedText.trim()}"`;
     
-    // Insert text to the input field
-    insertTextToInput(formattedText);
-    
-    // Clear selection state
-    setSelectionPosition(null);
-    setSelectedText('');
+    // Only add listener if selection is active
+    if (selectionActive) {
+      document.addEventListener('mousedown', handleClickOutside);
+      
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [selectionActive, clearSelection]);
+  
+  if (!selectionActive || !selectedText || !selectionPosition) {
+    return null;
+  }
+
+  const handleAction = (actionType: string) => {
+    if (actionType === 'clear') {
+      clearSelection();
+    } else {
+      // Insert prompt with selected text
+      insertTextToInput(`${actionType} "${selectedText}"`);
+      clearSelection();
+    }
   };
-
-  if (!selectionPosition || !selectedText) return null;
 
   return (
     <AnimatePresence>
-      {selectionPosition && (
+      {selectionActive && selectedText && selectionPosition && (
         <motion.div
           ref={popupRef}
-          className="fixed z-[1000]" // زيادة قيمة z-index للتأكد من ظهورها فوق جميع العناصر
-          style={{
-            top: `${selectionPosition.y}px`,
+          className="fixed z-50 flex flex-wrap gap-1 p-2 bg-white rounded-lg shadow-lg border-2 border-[#D8B4FE] transform -translate-x-1/2"
+          style={{ 
+            top: `${selectionPosition.y - 10}px`,
             left: `${selectionPosition.x}px`,
+            maxWidth: '320px'
           }}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
           transition={{ duration: 0.2 }}
         >
-          <div className={cn(
-            "bg-white rounded-full shadow-md border border-[#3B82F6] px-4 py-2",
-            "flex items-center gap-2 text-sm font-medium translate-x-[-50%] translate-y-[-120%]"
-          )}>
-            <button
-              onClick={handleAskClick}
-              className={cn(
-                "flex items-center gap-2 text-[#3B82F6] hover:text-[#2563EB]",
-                "transition-colors px-1"
-              )}
-              title="اسأل عن هذا النص"
-            >
-              <span className="font-medium">اسأل</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-              </svg>
-            </button>
-          </div>
+          <button
+            onClick={() => handleAction('اشرح')}
+            className="text-xs bg-[#3B82F6] hover:bg-[#2563EB] text-white px-3 py-1.5 rounded-md transition-colors"
+          >
+            اشرح
+          </button>
+          
+          <button
+            onClick={() => handleAction('لخص')}
+            className="text-xs bg-[#10B981] hover:bg-[#059669] text-white px-3 py-1.5 rounded-md transition-colors"
+          >
+            لخص
+          </button>
+          
+          <button
+            onClick={() => handleAction('ترجم')}
+            className="text-xs bg-[#8B5CF6] hover:bg-[#7C3AED] text-white px-3 py-1.5 rounded-md transition-colors"
+          >
+            ترجم
+          </button>
+          
+          <button
+            onClick={() => {
+              insertTextToInput(selectedText);
+              clearSelection();
+            }}
+            className="text-xs bg-[#F59E0B] hover:bg-[#D97706] text-white px-3 py-1.5 rounded-md transition-colors"
+          >
+            اقتبس
+          </button>
+          
+          <button
+            onClick={() => handleAction('clear')}
+            className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1.5 rounded-md transition-colors"
+            aria-label="إلغاء التحديد"
+          >
+            
+          </button>
         </motion.div>
       )}
     </AnimatePresence>
   );
-};
+}

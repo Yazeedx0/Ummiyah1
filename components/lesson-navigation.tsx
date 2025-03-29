@@ -61,7 +61,7 @@ export function LessonNavigation() {
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
-  // Add selection context
+  // Add selection context with expanded functionality
   const { setSelectedText, setSelectionPosition } = useSelection();
 
   useEffect(() => {
@@ -266,42 +266,52 @@ export function LessonNavigation() {
     }
   }, [selections.lessonId, hasContent, selections.tab]);
 
-  // تحسين معالج تحديد النص
+  // تحسين معالج تحديد النص - معالجة مشكلة اختفاء التحديد
   useEffect(() => {
-    let selectionTimeout: NodeJS.Timeout;
-    
     const handleSelection = () => {
       const selection = window.getSelection();
       
       if (selection && !selection.isCollapsed && selection.toString().trim() !== '') {
-        // إلغاء المؤقت السابق إن وجد
-        clearTimeout(selectionTimeout);
+        // Get selected text immediately without timeout
+        const text = selection.toString().trim();
         
-        // تأخير لتجنب ظهور النافذة المنبثقة واختفائها بسرعة
-        selectionTimeout = setTimeout(() => {
-          // Get selected text
-          const text = selection.toString().trim();
+        // Only process selections from the lesson content
+        const lessonContentElement = document.querySelector('.lesson-content');
+        if (lessonContentElement) {
+          const range = selection.getRangeAt(0);
           
-          // Only process selections from the lesson content
-          const lessonContentElement = document.querySelector('.lesson-content');
-          if (lessonContentElement) {
-            const range = selection.getRangeAt(0);
+          // Check if the selection is within the lesson content
+          if (lessonContentElement.contains(range.commonAncestorContainer)) {
+            // Position the popup above the selection
+            const selectionRect = range.getBoundingClientRect();
+            const x = selectionRect.x + (selectionRect.width / 2);
+            const y = selectionRect.y - 10;
             
-            // Check if the selection is within the lesson content
-            if (lessonContentElement.contains(range.commonAncestorContainer)) {
-              setSelectedText(text);
+            // Set the selection data immediately
+            setSelectedText(text);
+            setSelectionPosition({ x, y });
+            
+            // Prevent default behavior to keep selection visible
+            document.addEventListener('mousedown', function preventDeselect(e) {
+              // Only prevent once, then remove
+              document.removeEventListener('mousedown', preventDeselect);
               
-              // Calculate position for popup
-              const selectionRect = range.getBoundingClientRect();
+              // Check if clicking within lesson content
+              const isClickingPopup = !!e.target && (e.target as HTMLElement).closest('[data-selection-popup]');
               
-              // Position the popup above the selection
-              const x = selectionRect.x + (selectionRect.width / 2); // Center horizontally
-              const y = selectionRect.y - 5; // Position above selection with a small gap
-              
-              setSelectionPosition({ x, y });
-            }
+              // Don't prevent default if clicking on a popup
+              if (!isClickingPopup) {
+                // Allow clicking links and buttons
+                const isClickable = (e.target as HTMLElement).tagName === 'A' || 
+                                   (e.target as HTMLElement).tagName === 'BUTTON';
+                                   
+                if (!isClickable) {
+                  e.preventDefault();
+                }
+              }
+            }, { once: true });
           }
-        }, 100); // تأخير بسيط لتحسين التجربة
+        }
       }
     };
     
@@ -311,7 +321,6 @@ export function LessonNavigation() {
     return () => {
       document.removeEventListener('mouseup', handleSelection);
       document.removeEventListener('touchend', handleSelection);
-      clearTimeout(selectionTimeout);
     };
   }, [setSelectedText, setSelectionPosition]);
 
@@ -361,9 +370,10 @@ export function LessonNavigation() {
                   key={tab.id}
                   content={tab.label}
                   description={tab.description}
-                  position="bottom"
+                  position="bottom-start"
                   isRtl={true}
                   color="blue"
+                  className="rtl-tooltip"
                 >
                   <button
                     className={cn(
@@ -373,6 +383,7 @@ export function LessonNavigation() {
                         : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#3B82F6]"
                     )}
                     onClick={() => setSelections(prev => ({ ...prev, tab: tab.id }))}
+                    aria-label={`${tab.label}: ${tab.description}`}
                   >
                     <Icon size={16} />
                     {tab.label}
@@ -405,7 +416,7 @@ export function LessonNavigation() {
               <h3 className="text-lg font-semibold text-[#1E3A8A]">محتوى الدرس</h3>
             </div>
             <div 
-              className="leading-relaxed text-[#334155] lesson-content break-words" 
+              className="leading-relaxed text-[#334155] lesson-content break-words selection-persist" 
               dir="rtl"
               dangerouslySetInnerHTML={{ __html: formattedContent }}
             />

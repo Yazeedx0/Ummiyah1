@@ -8,7 +8,6 @@ interface LessonContentProps {
 }
 
 export function LessonContent({ grade, unit, lesson, className }: LessonContentProps) {
-  // This would normally fetch from an API based on the selections
   const content = `هذا هو محتوى الدرس ${lesson} من ${unit} للصف ${grade}. هنا سيظهر النص الكامل للدرس من قاعدة البيانات. يمكن أن يحتوي على فقرات وصور وأسئلة تفاعلية لمساعدة الطالب على فهم المادة التعليمية بشكل أفضل.`;
   
   return (

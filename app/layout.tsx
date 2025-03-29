@@ -4,6 +4,8 @@ import { Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
+import { SelectionProvider } from "@/context/selection-context";
+import { SelectionPopup } from "@/components/selection-popup";
 
 const notoSansArabic = Noto_Sans_Arabic({
   subsets: ["arabic"],
@@ -44,7 +46,10 @@ export default function RootLayout({
         )}
         suppressHydrationWarning
       >
-        {children}
+        <SelectionProvider>
+          {children}
+          <SelectionPopup data-selection-popup />
+        </SelectionProvider>
         <Toaster position="top-center" richColors />
       </body>
     </html>

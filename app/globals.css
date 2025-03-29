@@ -250,3 +250,24 @@ html, body, :root {
 .animate-fadeIn {
     animation-name: fadeIn;
 }
+
+/* Make text selection more visible */
+.selection-persist ::selection {
+    background-color: rgba(59, 130, 246, 0.3) !important; /* Blue selection color */
+    color: inherit !important;
+}
+
+/* Add custom marker for selected text */
+[data-has-selection="true"] {
+    position: relative;
+}
+
+/* When text is selected, temporarily disable text selection behavior */
+body.selection-active {
+    user-select: none;
+}
+
+/* But enable it for content areas */
+body.selection-active .lesson-content {
+    user-select: text;
+}
