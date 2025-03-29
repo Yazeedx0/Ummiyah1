@@ -56,11 +56,11 @@ const presetPrompts = [
     isHighlighted: true
   },
   {
-    id: 'summarize',
+    id: 'explain',
     icon: SummarizeIcon,
-    label: 'لخص النص',
-    description: 'تلخيص محتوى طويل إلى نقاط رئيسية مع الحفاظ على الأفكار المهمة',
-    text: 'هل يمكنك تلخيص النص التالي بشكل موجز: ',
+    label: 'اشرح هذا',
+    description: 'تقديم شرح بسيط وواضح للنص لمساعدتك على فهمه بشكل أفضل',
+    text: 'اشرح هذا النص بطريقة بسيطة وواضحة: ',
     color: 'blue'
   },
   {
@@ -72,11 +72,11 @@ const presetPrompts = [
     color: 'green'
   },
   {
-    id: 'add-title',
+    id: 'test-understanding',
     icon: PenIcon,
-    label: 'أضف عنوانًا',
-    description: 'اقتراح عنوان مناسب يعبر عن الفكرة الرئيسية للنص بشكل دقيق وجذاب',
-    text: 'أقترح عنوانًا مناسبًا لهذا النص: ',
+    label: 'اختبر فهمي',
+    description: 'إنشاء سؤال أو تمرين قصير لاختبار مدى فهمك للمحتوى',
+    text: 'اختبر فهمي لهذا الموضوع من خلال إنشاء سؤال تطبيقي: ',
     color: 'yellow'
   },
   {
@@ -199,10 +199,10 @@ export function MultimodalInput({
       stopListening();
       setIsSpeechEnabled(false);
       
-      // إضافة رسالة توضيحية للتحقق من الأداء
+    
       console.log("تم محاولة إيقاف الاستماع");
       
-      // إضافة تأخير بسيط للتأكد من التحديث
+    
       setTimeout(() => {
         if (isListening) {
           console.log("فشل إيقاف الاستماع، محاولة مرة أخرى");
@@ -216,11 +216,10 @@ export function MultimodalInput({
     }
   };
 
-  // Register input setter with selection context
+
   useEffect(() => {
     registerInputSetter((text, preserveMessageType = false) => {
       if (preserveMessageType && currentMessageType) {
-        // Keep the message type and append the selected text
         setInput(currentMessageType + text);
       } else {
         setInput(text);
@@ -446,35 +445,43 @@ export function MultimodalInput({
       
       <div className="flex flex-col items-center gap-2 pr-4 relative" ref={promptMenuRef}>
         {isLoading ? (
-          <Button
-            className="rounded-full h-12 w-12 min-w-[48px] p-0 bg-[#EF4444] text-white shrink-0 shadow-md hover:bg-[#DC2626] transition-colors"
-            onClick={(event) => {
-              event.preventDefault();
-              stop();
-              setMessages((messages) => sanitizeUIMessages(messages));
-            }}
-            aria-label="إيقاف الرد"
-          >
-            <StopIcon size={18} />
-          </Button>
+          <Tooltip content="إيقاف الرد" position="top" color="red">
+            <Button
+              className="rounded-full h-12 w-12 min-w-[48px] p-0 bg-[#EF4444] text-white shrink-0 shadow-md hover:bg-[#DC2626] transition-colors"
+              onClick={(event) => {
+                event.preventDefault();
+                stop();
+                setMessages((messages) => sanitizeUIMessages(messages));
+              }}
+              aria-label="إيقاف الرد"
+            >
+              <StopIcon size={18} />
+            </Button>
+          </Tooltip>
         ) : (
-          <Button
-            className="rounded-full h-12 min-w-[90px] px-5 bg-gradient-to-r from-[#3B82F6] to-[#60A5FA] text-white text-base font-medium shrink-0 flex items-center justify-center shadow-md hover:opacity-90 transition-all transform active:scale-95 hover:scale-105"
-            onClick={(event) => {
-              event.preventDefault();
-              submitForm();
-            }}
-            disabled={(!input || input.length === 0) && !isListening} // Allow submitting when listening
-            aria-label="إرسال الرسالة"
-          >
-            <span className="ml-2">إرسال</span>
-            <SendIcon size={16} />
-          </Button>
+          <Tooltip content="إرسال الرسالة" position="top" color="blue">
+            <Button
+              className="rounded-full h-12 min-w-[90px] px-5 bg-gradient-to-r from-[#3B82F6] to-[#60A5FA] text-white text-base font-medium shrink-0 flex items-center justify-center shadow-md hover:opacity-90 transition-all transform active:scale-95 hover:scale-105"
+              onClick={(event) => {
+                event.preventDefault();
+                submitForm();
+              }}
+              disabled={(!input || input.length === 0) && !isListening} // Allow submitting when listening
+              aria-label="إرسال الرسالة"
+            >
+              <span className="ml-2">إرسال</span>
+              <SendIcon size={16} />
+            </Button>
+          </Tooltip>
         )}
         
         {/* Speech Recognition Button */}
         {isSupported && (
-          <Tooltip content={isListening ? "إيقاف الاستماع" : "التحدث بالرسالة"} position="top">
+          <Tooltip 
+            content={isListening ? "إيقاف الاستماع" : "التحدث بالرسالة"} 
+            position="top" 
+            color={isListening ? "red" : "blue"}
+          >
             <Button
               className={cn(
                 "rounded-full h-10 w-10 min-w-[40px] p-0 shrink-0 shadow-sm transition-all",
@@ -494,8 +501,13 @@ export function MultimodalInput({
           </Tooltip>
         )}
         
-        {/* Child-friendly Prompt Templates Button - Improved */}
-        <Tooltip content="اختر قالب رسالة" position="top">
+        {/* Template Messages Button */}
+        <Tooltip 
+          content="اختر قالب رسالة"
+          position="top" 
+          color="purple"
+          isRtl={true} // Explicitly setting RTL for Arabic content
+        >
           <Button
             className="rounded-full h-10 min-w-[90px] px-3 bg-white border-2 border-[#D8B4FE] text-[#7C3AED] text-base font-medium shrink-0 flex items-center justify-center shadow-sm hover:bg-[#F3E8FF] transition-all"
             onClick={(event) => {
