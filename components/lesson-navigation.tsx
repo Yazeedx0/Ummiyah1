@@ -9,6 +9,14 @@ import { LessonContentFormatter } from "./lesson-content-formatter";
 import { formatContent } from "@/lib/content-formatter";
 import { useSelection } from '@/context/selection-context';
 
+// Update interface for PDF data to match the schema table name
+interface PdfData {
+  id: number;
+  title: string;
+  url: string;
+  subject_id: number;
+}
+
 const tabs = [
   { 
     id: 'content', 
@@ -17,10 +25,10 @@ const tabs = [
     description: 'استعراض المادة التعليمية للدرس بشكل كامل مع الشروحات والأمثلة التوضيحية'
   },
   { 
-    id: 'objectives', 
-    label: 'الأهداف التعليمية', 
+    id: 'book', 
+    label: 'الكتاب', 
     icon: TargetIcon,
-    description: 'عرض المهارات والمعارف التي سيكتسبها الطالب بعد إتمام هذا الدرس'
+    description: 'عرض محتوى الكتاب بصيغة PDF'
   },
   { 
     id: 'questions', 
@@ -48,6 +56,9 @@ export function LessonNavigation() {
   const [navigationData, setNavigationData] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pdfData, setPdfData] = useState<PdfData | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
   
   const [selections, setSelections] = useState<NavigationState>({
     gradeId: 0,
@@ -61,7 +72,6 @@ export function LessonNavigation() {
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
-  // Add selection context with expanded functionality
   const { setSelectedText, setSelectionPosition } = useSelection();
 
   useEffect(() => {
@@ -74,7 +84,6 @@ export function LessonNavigation() {
         
         const data = await response.json();
         
-        // DEBUG: Log all lessons to inspect their content
         let allLessons = [];
         data.forEach(grade => {
           grade.subjects?.forEach(subject => {
@@ -118,7 +127,6 @@ export function LessonNavigation() {
   }, []);
 
   useEffect(() => {
-    // Add listener to close dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
       if (openDropdown) {
         const currentDropdownRef = dropdownRefs.current[openDropdown];
@@ -128,7 +136,6 @@ export function LessonNavigation() {
       }
     };
 
-    // Check dropdown position and adjust if needed
     const adjustDropdownPosition = () => {
       if (openDropdown) {
         const dropdownEl = document.querySelector(`[data-dropdown="${openDropdown}"]`) as HTMLElement;
@@ -136,7 +143,6 @@ export function LessonNavigation() {
           const rect = dropdownEl.getBoundingClientRect();
           const viewportWidth = window.innerWidth;
           
-          // If dropdown extends beyond right edge of viewport
           if (rect.right > viewportWidth) {
             dropdownEl.style.right = '0';
             dropdownEl.style.left = 'auto';
@@ -263,7 +269,56 @@ export function LessonNavigation() {
     }
   }, [selections.lessonId, hasContent, selections.tab]);
 
-  // تحسين معالج تحديد النص - معالجة مشكلة اختفاء التحديد
+  // Fetch PDF data based on selected subject ID
+  const fetchPdfData = async (subjectId: number) => {
+    if (!subjectId) return;
+    
+    try {
+      setPdfLoading(true);
+      setPdfError(null);
+      console.log(`Fetching PDF for subject ID: ${subjectId}`);
+      
+      const response = await fetch(`/api/pdf?subject_id=${subjectId}`);
+      const responseText = await response.text();
+      
+      // Try to parse as JSON, but keep the original text if it fails
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Error parsing JSON response:', e);
+        console.log('Response was:', responseText);
+        throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+      }
+      
+      if (!response.ok) {
+        console.error('Error response:', data);
+        throw new Error(data.error || `Server responded with status ${response.status}`);
+      }
+      
+      console.log('PDF data received:', data);
+      
+      // Verify that the data has the expected structure
+      if (!data.url) {
+        console.warn('PDF data is missing url property:', data);
+      }
+      
+      setPdfData(data);
+    } catch (error) {
+      console.error("Error fetching PDF:", error);
+      setPdfError(error instanceof Error ? error.message : 'حدث خطأ أثناء تحميل ملف PDF');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
+  // Fetch PDF data when subject changes
+  useEffect(() => {
+    if (selections.subjectId && selections.tab === 'book') {
+      fetchPdfData(selections.subjectId);
+    }
+  }, [selections.subjectId, selections.tab]);
+
   useEffect(() => {
     const handleSelection = () => {
       const selection = window.getSelection();
@@ -320,6 +375,36 @@ export function LessonNavigation() {
       document.removeEventListener('touchend', handleSelection);
     };
   }, [setSelectedText, setSelectionPosition]);
+
+  const renderPdfViewer = (pdfUrl: string) => {
+    // Create a proxied URL for the PDF
+    const proxiedPdfUrl = `/api/pdf-proxy?url=${encodeURIComponent(pdfUrl)}`;
+    
+    console.log('Rendering PDF viewer with URL:', proxiedPdfUrl);
+    
+    return (
+      <div className="flex-1 w-full h-full" style={{ height: "600px", minHeight: "500px" }}>
+        <object
+          data={proxiedPdfUrl}
+          type="application/pdf"
+          className="w-full h-full"
+          title="PDF Viewer"
+        >
+          <iframe
+            src={proxiedPdfUrl}
+            className="w-full h-full border-0"
+            title="PDF Viewer"
+            sandbox="allow-scripts allow-same-origin allow-forms"
+          >
+            <p>
+              Your browser doesn't support embedded PDF viewing. 
+              <a href={proxiedPdfUrl} target="_blank" rel="noopener noreferrer">Click here to download the PDF</a>.
+            </p>
+          </iframe>
+        </object>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -431,6 +516,87 @@ export function LessonNavigation() {
               <p className="text-[#64748B] mt-3 font-medium">لم يتم إضافة محتوى لهذا الدرس بعد</p>
               <p className="text-[#94A3B8] mt-1 text-sm">يرجى الانتقال إلى الأهداف التعليمية لمعرفة المزيد</p>
             </div>
+          </div>
+        )}
+        
+        {selections.tab === 'book' && (
+          <div className="h-full flex flex-col">
+            {pdfLoading ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-[#3B82F6]">جاري تحميل الكتاب...</div>
+              </div>
+            ) : pdfError ? (
+              <div className="flex-1 flex items-center justify-center flex-col">
+                <div className="text-red-500 mb-2">
+                  {pdfError}
+                </div>
+                {pdfError.includes('PDF functionality is not available') ? (
+                  <div className="text-center max-w-md mx-auto mt-2">
+                    <p className="text-sm text-gray-600 mb-4">
+                      يبدو أن قاعدة البيانات تحتاج إلى تحديث. يرجى اتباع الخطوات التالية:
+                    </p>
+                    <ol className="text-sm text-gray-700 text-right list-decimal list-inside space-y-2">
+                      <li>تأكد من تشغيل قاعدة البيانات</li>
+                      <li>قم بتنفيذ الأمر <code className="bg-gray-100 px-1 py-0.5 rounded">prisma generate</code></li>
+                      <li>قم بتنفيذ الأمر <code className="bg-gray-100 px-1 py-0.5 rounded">prisma migrate dev</code></li>
+                      <li>أعد تشغيل الخادم</li>
+                    </ol>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => fetchPdfData(selections.subjectId)} 
+                    className="px-4 py-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white rounded-md transition-colors"
+                  >
+                    إعادة المحاولة
+                  </button>
+                )}
+              </div>
+            ) : pdfData && pdfData.url ? (
+              <div className="flex-1 flex flex-col">
+                <div className="bg-[#F8FAFC] p-3 border-b border-[#E5E9F0] flex justify-between items-center">
+                  <h3 className="font-bold text-[#1E3A8A]">{pdfData.title}</h3>
+                  <div className="flex items-center gap-2">
+                    <a 
+                      href={`/api/pdf-proxy?url=${encodeURIComponent(pdfData.url)}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-[#3B82F6] hover:text-[#1D4ED8] flex items-center gap-1 text-sm py-1 px-2 rounded hover:bg-[#EBF5FF] transition-colors"
+                      title="فتح في صفحة جديدة"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                      </svg>
+                      فتح في صفحة جديدة
+                    </a>
+                    <a 
+                      href={`/api/pdf-proxy?url=${encodeURIComponent(pdfData.url)}`}
+                      download={`${pdfData.title}.pdf`}
+                      className="text-[#3B82F6] hover:text-[#1D4ED8] flex items-center gap-1 text-sm py-1 px-2 rounded hover:bg-[#EBF5FF] transition-colors"
+                      title="تنزيل الملف"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                      تنزيل
+                    </a>
+                  </div>
+                </div>
+                {renderPdfViewer(pdfData.url)}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full p-8 bg-[#F8FAFC] rounded-lg border border-dashed border-[#CBD5E1]">
+                <div className="text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-[#94A3B8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  <p className="text-[#64748B] mt-3 font-medium">لم يتم إضافة كتاب لهذه المادة بعد</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
         

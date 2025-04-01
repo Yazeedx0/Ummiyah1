@@ -30,11 +30,12 @@ model objectives {
 }
 
 model subjects {
-  id       Int     @id @default(autoincrement())
-  name     String  @db.VarChar(100)
+  id       Int       @id @default(autoincrement())
+  name     String    @db.VarChar(100)
   grade_id Int?
-  grades   grades? @relation(fields: [grade_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  grades   grades?   @relation(fields: [grade_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   units    units[]
+  pdf_urls url_pdf[] // Add relation from subjects to url_pdf
 }
 
 model units {
@@ -43,4 +44,14 @@ model units {
   subject_id Int?
   lessons    lessons[]
   subjects   subjects? @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model url_pdf {
+  id         Int       @id @default(autoincrement())
+  title      String    @db.VarChar(100)
+  url        String    
+  subject_id Int?
+  subjects   subjects? @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([subject_id]) // Add index for better query performance
 }

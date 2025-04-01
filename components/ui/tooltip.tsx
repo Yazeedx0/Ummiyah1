@@ -2,8 +2,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+
 
 interface TooltipProps {
   children: React.ReactNode;
@@ -42,7 +43,6 @@ export function Tooltip({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Check for RTL on mount
   useEffect(() => {
     setIsMounted(true);
     return () => {
@@ -50,7 +50,6 @@ export function Tooltip({
     };
   }, []);
 
-  // Calculate tooltip position when visible
   useEffect(() => {
     if (isVisible && childRef.current) {
       const updatePosition = () => {
@@ -65,7 +64,6 @@ export function Tooltip({
         let top = 0;
         let left = 0;
         
-        // Try the requested position first
         switch (position) {
           case 'top':
             top = childRect.top - tooltipRect.height - spacing;
@@ -85,7 +83,6 @@ export function Tooltip({
             break;
         }
         
-        // Check for viewport overflow and adjust position if needed
         const viewport = {
           top: 8,
           left: 8,
@@ -100,7 +97,6 @@ export function Tooltip({
             top = childRect.bottom + spacing;
             calculatedPosition = 'bottom';
           } else {
-            // Just adjust position to prevent overflow
             top = viewport.top;
           }
         }
@@ -160,10 +156,8 @@ export function Tooltip({
         });
       };
       
-      // Initial position calculation
       updatePosition();
       
-      // Recalculate on resize
       window.addEventListener('resize', updatePosition);
       window.addEventListener('scroll', updatePosition, true);
       
@@ -184,7 +178,6 @@ export function Tooltip({
     setIsVisible(false);
   };
 
-  // Get color classes
   const getColorClasses = () => {
     const baseClasses = 'shadow-lg';
     

@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               include: {
                 lessons: {
                   orderBy: {
-                    id: 'asc'  // This ensures lessons are sorted by ID
+                    id: 'asc'  
                   }
                 }
               }
