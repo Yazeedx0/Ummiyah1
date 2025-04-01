@@ -26,7 +26,7 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
     append,
   } = useChat({
     api: "/api/chat",
-    id: chatId || "", // تأكد من عدم تمرير `undefined` في البداية
+    id: chatId || "", 
     initialMessages: [
       {
         id: "welcome",

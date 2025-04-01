@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation";
-import { nanoid } from "nanoid";
+import { HomePage } from "@/components/homepage";
 
-export default function HomePage() {
-  const chatId = nanoid();
-  redirect(`/chat/${chatId}`);
+export default function Home() {
+  return <HomePage />;
 }
