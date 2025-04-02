@@ -7,15 +7,38 @@ import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 import { SparklesIcon, BookOpenIcon, UserIcon, QuestionMarkIcon } from "./icons";
 import Header from "./header";
+import { LoadingSpinner } from "./LoadingSpinner";
+import { useRouter } from "next/navigation";
 
 export function HomePage() {
-  // Generate a static chat ID that remains consistent during SSR and CSR
+  const router = useRouter();
   const [chatId, setChatId] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   
-  // Generate the ID only once after component mounts on client
   useEffect(() => {
     setChatId(nanoid());
   }, []);
+
+  const handleStartNow = () => {
+    if (chatId) {
+      setIsLoading(true);
+      // Navigate after a short delay to show the loading spinner
+      setTimeout(() => {
+        router.push(`/chat/${chatId}`);
+      }, 1500);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#F8FAFC] via-white to-[#F0F7FF] font-noto-sans flex items-center justify-center" dir="rtl">
+        <div className="flex flex-col items-center gap-6">
+          <LoadingSpinner size={60} color="#4D79FF" thickness={3} text="جارٍ تحميل المحادثة..." textColor="#4D79FF" />
+          <p className="text-[#475569] text-lg mt-2">يرجى الانتظار قليلاً</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F8FAFC] via-white to-[#F0F7FF] font-noto-sans" dir="rtl">
@@ -42,12 +65,12 @@ export function HomePage() {
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               {chatId ? (
-                <Link 
-                  href={`/chat/${chatId}`} 
+                <button 
+                  onClick={handleStartNow}
                   className="px-6 py-3.5 bg-gradient-to-r from-[#4D79FF] to-[#5D89FF] hover:from-[#3B63CC] hover:to-[#4D79FF] text-white rounded-lg font-medium transition-all text-center text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 duration-300"
                 >
                   ابدأ الآن
-                </Link>
+                </button>
               ) : (
                 <div className="px-6 py-3.5 bg-gradient-to-r from-[#4D79FF] to-[#5D89FF] text-white rounded-lg font-medium text-center text-lg shadow-md opacity-75">
                   ابدأ الآن
@@ -291,12 +314,12 @@ export function HomePage() {
               انضم إلى آلاف الطلاب الذين يستخدمون أُمية لتحسين فهمهم للدروس وتطوير مهاراتهم الأكاديمية
             </p>
             {chatId ? (
-              <Link 
-                href={`/chat/${chatId}`} 
+              <button 
+                onClick={handleStartNow}
                 className="px-10 py-5 bg-gradient-to-r from-[#4D79FF] to-[#5D89FF] hover:from-[#3B63CC] hover:to-[#4D79FF] text-white rounded-lg font-medium transition-all text-center text-xl shadow-lg hover:shadow-xl inline-block hover:-translate-y-1 duration-300"
               >
                 ابدأ الآن مجاناً
-              </Link>
+              </button>
             ) : (
               <div className="px-10 py-5 bg-gradient-to-r from-[#4D79FF] to-[#5D89FF] text-white rounded-lg font-medium text-center text-xl shadow-md inline-block opacity-75">
                 ابدأ الآن مجاناً
@@ -383,7 +406,7 @@ export function HomePage() {
                 </li>
                 <li>
                   <div className="flex items-center gap-4 mt-3">
-                    <a href="https://twitter.com/ummiyah" target="_blank" rel="noopener noreferrer" className="size-9 flex items-center justify-center bg-[#F1F5F9] hover:bg-[#E5E9F0] rounded-full transition-colors">
+                    <a href="https://x.com/Ummiyahai" target="_blank" rel="noopener noreferrer" className="size-9 flex items-center justify-center bg-[#F1F5F9] hover:bg-[#E5E9F0] rounded-full transition-colors">
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#334155]">
                         <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
                       </svg>
