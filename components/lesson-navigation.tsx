@@ -104,17 +104,19 @@ export function LessonNavigation() {
         
         if (data.length > 0) {
           const firstGrade = data[0];
-          const firstSubject = firstGrade.subjects[0];
-          const firstUnit = firstSubject?.units[0];
-          const firstLesson = firstUnit?.lessons[0];
+          const firstSubject = firstGrade.subjects?.[0];
+          const firstUnit = firstSubject?.units?.[0];
+          const firstLesson = firstUnit?.lessons?.[0];
           
-          setSelections({
-            gradeId: firstGrade.id,
-            subjectId: firstSubject?.id || 0,
-            unitId: firstUnit?.id || 0,
-            lessonId: firstLesson?.id || 0,
-            tab: 'content'
-          });
+          if (firstGrade && firstSubject && firstUnit && firstLesson) {
+            setSelections({
+              gradeId: firstGrade.id,
+              subjectId: firstSubject.id,
+              unitId: firstUnit.id,
+              lessonId: firstLesson.id,
+              tab: 'content'
+            });
+          }
         }
       } catch (error) {
         setError(error instanceof Error ? error.message : 'حدث خطأ أثناء تحميل البيانات');
@@ -181,7 +183,11 @@ export function LessonNavigation() {
         newSelections.unitId = getCurrentGrade()?.subjects.find((s: any) => s.id === id)?.units[0]?.id || 0;
         newSelections.lessonId = 0;
       } else if (type === 'unit') {
-        newSelections.lessonId = getCurrentSubject()?.units.find((u: any) => u.id === id)?.lessons[0]?.id || 0;
+        // When a unit is selected, automatically select its first lesson
+        const firstLesson = getCurrentSubject()?.units.find((u: any) => u.id === id)?.lessons[0];
+        if (firstLesson) {
+          newSelections.lessonId = firstLesson.id;
+        }
       }
       
       return newSelections;
@@ -262,12 +268,23 @@ export function LessonNavigation() {
   // Format the content for display
   const formattedContent = hasContent ? formatContent(currentLesson?.content) : '';
 
-  // Auto-select objectives tab if content tab is selected but no content exists
+  // Auto-select content tab whenever lesson changes (if content exists)
   useEffect(() => {
-    if (selections.tab === 'content' && !hasContent) {
-      setSelections(prev => ({ ...prev, tab: 'objectives' }));
+    if (selections.lessonId > 0) {
+      const currentLesson = getCurrentLesson();
+      const hasContent = Boolean(currentLesson?.content && 
+        currentLesson.content.trim() !== '' && 
+        !currentLesson.content.match(/^(<[^>]*>|\s)*$/));
+      
+      // If content exists for this lesson, automatically switch to content tab
+      if (hasContent) {
+        setSelections(prev => ({ ...prev, tab: 'content' }));
+      } else {
+        // If no content exists, switch to objectives tab
+        setSelections(prev => ({ ...prev, tab: 'objectives' }));
+      }
     }
-  }, [selections.lessonId, hasContent, selections.tab]);
+  }, [selections.lessonId]);
 
   // Fetch PDF data based on selected subject ID
   const fetchPdfData = async (subjectId: number) => {

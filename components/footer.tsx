@@ -14,7 +14,6 @@ export default function Footer() {
     <footer className="py-16 px-6 md:px-10 border-t border-[#E5E9F0] bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-          {/* Logo and description */}
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="size-10 flex items-center rounded-full justify-center ring-2 shrink-0 ring-[#BFDBFE] shadow-sm bg-gradient-to-br from-[#4D79FF] to-[#7C9CFF]">
@@ -27,7 +26,6 @@ export default function Footer() {
             </p>
           </div>
           
-          {/* Quick Links */}
           <div>
             <h3 className="text-lg font-bold text-[#1E3A8A] mb-4">روابط سريعة</h3>
             <ul className="space-y-3">
@@ -92,7 +90,7 @@ export default function Footer() {
                       <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
                     </svg>
                   </a>
-                  <a href="https://facebook.com/ummiyah" target="_blank" rel="noopener noreferrer" className="size-9 flex items-center justify-center bg-[#F1F5F9] hover:bg-[#E5E9F0] rounded-full transition-colors hover:scale-110">
+                  <a href="https://www.facebook.com/ummiyah.learn" target="_blank" rel="noopener noreferrer" className="size-9 flex items-center justify-center bg-[#F1F5F9] hover:bg-[#E5E9F0] rounded-full transition-colors hover:scale-110">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#334155]">
                       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                     </svg>

@@ -535,7 +535,6 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Add the Footer component */}
       <Footer />
     </div>
   );

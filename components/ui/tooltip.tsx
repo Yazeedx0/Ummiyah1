@@ -58,7 +58,6 @@ export function Tooltip({
         const childRect = childRef.current.getBoundingClientRect();
         const tooltipRect = tooltipRef.current.getBoundingClientRect();
         
-        // Default offset distances
         const spacing = 8;
         let calculatedPosition = position;
         let top = 0;
@@ -90,10 +89,8 @@ export function Tooltip({
           right: window.innerWidth - 8
         };
         
-        // Check top overflow
         if (top < viewport.top) {
           if (position === 'top') {
-            // Flip from top to bottom
             top = childRect.bottom + spacing;
             calculatedPosition = 'bottom';
           } else {
@@ -101,45 +98,34 @@ export function Tooltip({
           }
         }
         
-        // Check bottom overflow
         if (top + tooltipRect.height > viewport.bottom) {
           if (position === 'bottom') {
-            // Flip from bottom to top
             top = childRect.top - tooltipRect.height - spacing;
             calculatedPosition = 'top';
           } else {
-            // Just adjust position to prevent overflow
             top = viewport.bottom - tooltipRect.height;
           }
         }
         
-        // Check left overflow
         if (left < viewport.left) {
           if (position === 'left') {
-            // Flip from left to right
             left = childRect.right + spacing;
             calculatedPosition = 'right';
           } else {
-            // Just adjust position to prevent overflow
             left = viewport.left;
           }
         }
         
-        // Check right overflow
         if (left + tooltipRect.width > viewport.right) {
           if (position === 'right') {
-            // Flip from right to left
             left = childRect.left - tooltipRect.width - spacing;
             calculatedPosition = 'left';
           } else {
-            // Just adjust position to prevent overflow
             left = viewport.right - tooltipRect.width;
           }
         }
         
-        // RTL adjustments
         if (isRtl) {
-          // For horizontal positions, mirror the placement
           if (calculatedPosition === 'left') {
             calculatedPosition = 'right';
             left = childRect.right + spacing;
@@ -221,7 +207,6 @@ export function Tooltip({
     }
   };
 
-  // Get width classes
   const getWidthClasses = () => {
     switch (width) {
       case 'sm': return 'min-w-[12rem] max-w-[16rem]';
@@ -231,7 +216,6 @@ export function Tooltip({
     }
   };
 
-  // Animation variants based on position
   const getAnimationForPosition = (placement: string) => {
     switch (placement) {
       case 'top': return {
@@ -262,13 +246,12 @@ export function Tooltip({
     }
   };
 
-  // Render with portal
   const renderTooltip = () => {
     if (!isMounted || !isVisible) return null;
     
     const animation = getAnimationForPosition(tooltipPosition.placement);
     
-    // Use createPortal to render outside of any constrained containers
+    
     return createPortal(
       <AnimatePresence>
         <motion.div
