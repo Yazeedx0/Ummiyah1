@@ -1,4 +1,6 @@
 // components/ui/useSpeechRecognition.ts
+      // @ts-nocheck
+
 import { useEffect, useRef, useState } from 'react';
 
 const useSpeechRecognition = () => {

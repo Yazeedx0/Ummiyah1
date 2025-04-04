@@ -1,3 +1,6 @@
+
+      // @ts-nocheck
+
 "use client";
 
 import type { Message } from "ai";

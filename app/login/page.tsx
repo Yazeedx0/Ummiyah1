@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -27,23 +29,71 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    // Simulate authentication process
     try {
-      // Here you would typically make an API call to authenticate the user
-      // For now, we'll just simulate a delay and success
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Sign in with email and password using Firebase
+      await signInWithEmailAndPassword(auth, email, password);
       
       // If authentication is successful, redirect to the home page or dashboard
       router.push('/');
-    } catch (err) {
-      setError("حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.");
+    } catch (err: any) {
+      console.error("Firebase auth error:", err);
+
+      // Handle different Firebase error codes with appropriate Arabic messages
+      switch (err.code) {
+        case "auth/invalid-email":
+          setError("البريد الإلكتروني غير صحيح");
+          break;
+        case "auth/user-not-found":
+          setError("لا يوجد حساب مرتبط بهذا البريد الإلكتروني");
+          break;
+        case "auth/wrong-password":
+          setError("كلمة المرور غير صحيحة");
+          break;
+        case "auth/too-many-requests":
+          setError("تم تقييد الوصول إلى هذا الحساب مؤقتًا بسبب محاولات تسجيل دخول فاشلة متعددة");
+          break;
+        default:
+          setError("حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider: "google" | "facebook" | "twitter") => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      let authProvider;
+      switch (provider) {
+        case "google":
+          authProvider = new GoogleAuthProvider();
+          break;
+        case "facebook":
+          authProvider = new FacebookAuthProvider();
+          break;
+        case "twitter":
+          authProvider = new TwitterAuthProvider();
+          break;
+      }
+
+      await signInWithPopup(auth, authProvider);
+      router.push('/');
+    } catch (err: any) {
+      console.error(`${provider} sign-in error:`, err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError("تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية");
+      } else {
+        setError(`حدث خطأ أثناء تسجيل الدخول باستخدام ${provider === 'google' ? 'جوجل' : provider === 'facebook' ? 'فيسبوك' : 'تويتر'}`);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F8FAFC] via-white to-[#F0F7FF] font-noto-sans" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-[#F8FAFC] via-white to-[#F0F7FF] font-noto-sans pt-14" dir="rtl">
       {/* Header */}
       <Header />
       
@@ -130,7 +180,11 @@ export default function LoginPage() {
             <div className="mt-8 pt-6 border-t border-[#E5E9F0]">
               <p className="text-center text-[#64748B] mb-4">أو تسجيل الدخول باستخدام</p>
               <div className="flex justify-center gap-4">
-                <button className="flex items-center justify-center size-12 rounded-full border border-[#CBD5E1] hover:border-[#94A3B8] hover:bg-gray-50 transition-all">
+                <button 
+                  className="flex items-center justify-center size-12 rounded-full border border-[#CBD5E1] hover:border-[#94A3B8] hover:bg-gray-50 transition-all"
+                  onClick={() => handleSocialLogin('google')}
+                  disabled={isLoading}
+                >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M21.8055 10.0415H21V10H12V14H17.6515C16.827 16.3285 14.6115 18 12 18C8.6865 18 6 15.3135 6 12C6 8.6865 8.6865 6 12 6C13.5295 6 14.921 6.577 15.9805 7.5195L18.809 4.691C17.023 3.0265 14.634 2 12 2C6.4775 2 2 6.4775 2 12C2 17.5225 6.4775 22 12 22C17.5225 22 22 17.5225 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#FFC107"/>
                     <path d="M3.15283 7.3455L6.43833 9.755C7.32733 7.554 9.48033 6 11.9998 6C13.5293 6 14.9208 6.577 15.9803 7.5195L18.8088 4.691C17.0228 3.0265 14.6338 2 11.9998 2C8.15883 2 4.82783 4.1685 3.15283 7.3455Z" fill="#FF3D00"/>
@@ -138,12 +192,20 @@ export default function LoginPage() {
                     <path d="M21.8055 10.0415H21V10H12V14H17.6515C17.2571 15.1082 16.5467 16.0766 15.608 16.7855L15.6095 16.7845L18.7045 19.4035C18.4855 19.6025 22 17 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#1976D2"/>
                   </svg>
                 </button>
-                <button className="flex items-center justify-center size-12 rounded-full border border-[#CBD5E1] hover:border-[#94A3B8] hover:bg-gray-50 transition-all">
+                <button 
+                  className="flex items-center justify-center size-12 rounded-full border border-[#CBD5E1] hover:border-[#94A3B8] hover:bg-gray-50 transition-all"
+                  onClick={() => handleSocialLogin('facebook')}
+                  disabled={isLoading}
+                >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2C6.477 2 2 6.477 2 12C2 16.991 5.657 21.128 10.438 21.879V14.89H7.898V12H10.438V9.797C10.438 7.291 11.93 5.907 14.215 5.907C15.309 5.907 16.453 6.102 16.453 6.102V8.562H15.193C13.95 8.562 13.563 9.333 13.563 10.124V12H16.336L15.893 14.89H13.563V21.879C18.343 21.129 22 16.99 22 12C22 6.477 17.523 2 12 2Z" fill="#1877F2"/>
                   </svg>
                 </button>
-                <button className="flex items-center justify-center size-12 rounded-full border border-[#CBD5E1] hover:border-[#94A3B8] hover:bg-gray-50 transition-all">
+                <button 
+                  className="flex items-center justify-center size-12 rounded-full border border-[#CBD5E1] hover:border-[#94A3B8] hover:bg-gray-50 transition-all"
+                  onClick={() => handleSocialLogin('twitter')}
+                  disabled={isLoading}
+                >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18.244 2.25H21.552L14.325 10.51L22.827 21.75H16.17L10.956 14.933L4.99 21.75H1.68L9.41 12.915L1.254 2.25H8.044L12.793 8.481L18.244 2.25ZM17.083 19.77H18.916L7.084 4.126H5.117L17.083 19.77Z" fill="#000000"/>
                   </svg>

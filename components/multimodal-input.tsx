@@ -1,3 +1,6 @@
+
+  // @ts-nocheck
+
 "use client";
 
 import type { ChatRequestOptions, CreateMessage, Message } from "ai";

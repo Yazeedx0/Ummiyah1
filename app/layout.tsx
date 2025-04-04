@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import { SelectionProvider } from "@/context/selection-context";
 import { SelectionPopup } from "@/components/selection-popup";
+import { AuthProvider } from "@/components/AuthProvider";
 
 const notoSansArabic = Noto_Sans_Arabic({
   subsets: ["arabic"],
@@ -46,10 +47,12 @@ export default function RootLayout({
         )}
         suppressHydrationWarning
       >
-        <SelectionProvider>
-          {children}
-          <SelectionPopup data-selection-popup />
-        </SelectionProvider>
+        <AuthProvider>
+          <SelectionProvider>
+            {children}
+            <SelectionPopup data-selection-popup />
+          </SelectionProvider>
+        </AuthProvider>
         <Toaster position="top-center" richColors />
       </body>
     </html>
