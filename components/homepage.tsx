@@ -1,4 +1,4 @@
-      // @ts-nocheck
+// @ts-nocheck
 /* eslint-disable react/no-unescaped-entities */
 
 "use client";
@@ -185,6 +185,49 @@ export function HomePage() {
             {/* Decorative elements */}
             <div className="absolute -top-12 -left-12 w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full opacity-20 blur-2xl animate-pulse"></div>
             <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-gradient-to-br from-green-400 to-blue-500 rounded-full opacity-20 blur-2xl animate-pulse animation-delay-2000"></div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Video Section - New Addition */}
+      <section className="py-20 md:py-28 px-6 md:px-10 bg-white relative overflow-hidden">
+        <div className="absolute top-20 left-0 w-64 h-64 bg-blue-100 rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute bottom-20 right-0 w-64 h-64 bg-purple-100 rounded-full opacity-30 blur-3xl"></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            viewport={{ once: true }}
+          >
+            <span className="text-sm font-bold text-[#4D79FF] bg-[#EEF4FF] px-4 py-1.5 rounded-full mb-4 inline-block">شاهد أُمية في العمل</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1E3A8A] mt-3">تعرف أكثر على أُمية</h2>
+            <p className="mt-4 text-[#475569] text-xl max-w-2xl mx-auto">
+              شاهد كيف يمكن لأُمية مساعدتك في رحلتك التعليمية
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            className="relative overflow-hidden rounded-2xl shadow-xl max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[#4D79FF] to-[#7C9CFF] opacity-10 rounded-2xl"></div>
+            <div className="relative shadow-md rounded-2xl overflow-hidden aspect-video">
+              <video 
+                className="w-full h-full object-cover rounded-2xl"
+                controls
+                poster="/assets/images/Ummiyah.png"
+              >
+                <source src="/assets/videos/Ummiyah.mp4" type="video/mp4" />
+                متصفحك لا يدعم تشغيل الفيديو
+              </video>
+            </div>
+            <div className="absolute inset-0 rounded-2xl border border-white/10 pointer-events-none"></div>
           </motion.div>
         </div>
       </section>
